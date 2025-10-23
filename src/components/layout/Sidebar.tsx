@@ -166,25 +166,6 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-sidebar-border space-y-2">
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className={cn(
-            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 px-3",
-            collapsed ? "w-12 justify-center" : "w-full"
-          )}
-          title={collapsed ? "Выход" : undefined}
-        >
-          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-            <LogOut className="w-5 h-5" />
-          </div>
-          {showText && !collapsed && (
-            <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
-              Выход
-            </span>
-          )}
-        </Button>
-        
         {!isLoading && user && profileData && (
           <button
             onClick={() => navigate('/profile')}
@@ -208,6 +189,25 @@ export function Sidebar() {
             )}
           </button>
         )}
+        
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className={cn(
+            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12",
+            collapsed ? "w-12 justify-center px-0" : "w-full px-3 justify-start"
+          )}
+          title={collapsed ? "Выход" : undefined}
+        >
+          <div className={cn("w-5 h-5 flex items-center justify-center", collapsed ? "" : "flex-shrink-0")}>
+            <LogOut className="w-5 h-5" />
+          </div>
+          {showText && !collapsed && (
+            <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
+              Выход
+            </span>
+          )}
+        </Button>
       </div>
 
       <Button

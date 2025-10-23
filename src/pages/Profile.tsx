@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
-import { Upload } from 'lucide-react';
+import { Upload, Eye, EyeOff } from 'lucide-react';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -22,6 +22,16 @@ export default function Profile() {
   const [taxBase, setTaxBase] = useState<'net_profit' | 'revenue'>('net_profit');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -50,6 +60,9 @@ export default function Profile() {
         setTaxRate(profile.tax_rate?.toString() || '6');
         setTaxBase((profile.tax_base as 'net_profit' | 'revenue') || 'net_profit');
         setAvatarUrl(profile.avatar_url);
+        setPhone(profile.phone || '');
+        setCity(profile.city || '');
+        setCountry(profile.country || '');
       }
     } catch (error: any) {
       console.error('Error loading profile:', error);
@@ -118,6 +131,9 @@ export default function Profile() {
           name,
           tax_rate: parseFloat(taxRate),
           tax_base: taxBase,
+          phone,
+          city,
+          country,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -133,6 +149,51 @@ export default function Profile() {
       toast.error('Ошибка сохранения профиля');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error('Новые пароли не совпадают');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('Новый пароль должен содержать минимум 6 символов');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      // First verify old password by trying to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: oldPassword,
+      });
+
+      if (signInError) {
+        toast.error('Неверный старый пароль');
+        return;
+      }
+
+      // Update password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) throw updateError;
+
+      toast.success('Пароль успешно изменен');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      console.error('Error changing password:', error);
+      toast.error('Ошибка изменения пароля');
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -210,6 +271,116 @@ export default function Profile() {
                 className="bg-muted"
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Телефон</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+7 (XXX) XXX-XX-XX"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">Город</Label>
+              <Input
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Москва"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="country">Страна</Label>
+              <Input
+                id="country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="Россия"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Изменить пароль</CardTitle>
+            <CardDescription>
+              Обновите пароль для входа в систему
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="oldPassword">Старый пароль</Label>
+                <div className="relative">
+                  <Input
+                    id="oldPassword"
+                    type={showOldPassword ? 'text' : 'password'}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    placeholder="Введите старый пароль"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOldPassword(!showOldPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Новый пароль</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Введите новый пароль"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Подтвердите новый пароль</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Повторите новый пароль"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button type="submit" disabled={changingPassword}>
+                {changingPassword ? 'Изменение...' : 'Изменить пароль'}
+              </Button>
+            </form>
           </CardContent>
         </Card>
 

@@ -28,14 +28,20 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
   const handleDateRangeSelect = (range: DateRange | undefined) => {
     if (!range?.from) return;
 
-    // Если уже есть полный диапазон (from и to), начинаем новый выбор
+    // Если уже есть полный диапазон, начинаем новый выбор
     if (dateRange?.from && dateRange?.to) {
       setDateRange({ from: range.from, to: undefined });
       return;
     }
 
-    // Если есть только from, устанавливаем to
+    // Если есть только from и новая дата отличается
     if (dateRange?.from && !dateRange?.to) {
+      // Если выбрана та же дата, игнорируем
+      if (range.from.getTime() === dateRange.from.getTime()) {
+        return;
+      }
+      
+      // Устанавливаем to и применяем фильтр
       const newRange = { from: dateRange.from, to: range.from };
       setDateRange(newRange);
       setActiveFilter('custom');

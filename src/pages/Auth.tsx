@@ -49,8 +49,8 @@ export default function Auth() {
         });
       }
 
-      toast.success('Регистрация успешна! Добро пожаловать!');
-      navigate('/');
+      toast.success('Регистрация успешна!');
+      navigate('/complete-profile');
     } catch (error: any) {
       toast.error(error.message || 'Ошибка регистрации');
     } finally {

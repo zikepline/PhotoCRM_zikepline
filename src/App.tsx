@@ -14,6 +14,7 @@ import Companies from "./pages/Companies";
 import Tasks from "./pages/Tasks";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import CompleteProfile from "./pages/CompleteProfile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +29,7 @@ const App = () => (
         <SidebarProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
             <Route path="/kanban" element={<ProtectedRoute><Layout><Kanban /></Layout></ProtectedRoute>} />
             <Route path="/calculator" element={<ProtectedRoute><Layout><Calculator /></Layout></ProtectedRoute>} />

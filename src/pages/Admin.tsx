@@ -3,15 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { formatDate, formatDateTime } from '@/lib/utils/calculations';
 import { DateFilter } from '@/components/dashboard/DateFilter';
 import { DateFilter as DateFilterType } from '@/types/crm';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 
 interface UserInfo {
   id: string;
   email: string;
   name: string;
+  phone: string | null;
+  city: string | null;
+  country: string | null;
   created_at: string;
   last_sign_in_at: string | null;
 }
@@ -19,8 +24,10 @@ interface UserInfo {
 interface ActivityStats {
   total_visits: number;
   unique_users: number;
-  visits_by_date: { date: string; count: number }[];
+  visits_by_date: { date: string; visits: number; unique: number }[];
 }
+
+type GroupBy = 'day' | 'week' | 'month' | 'year';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -35,6 +42,7 @@ export default function Admin() {
   const [dateFilter, setDateFilter] = useState<DateFilterType>({
     type: 'current_month',
   });
+  const [groupBy, setGroupBy] = useState<GroupBy>('day');
 
   useEffect(() => {
     checkAdminAndLoad();
@@ -44,7 +52,7 @@ export default function Admin() {
     if (isAdmin) {
       loadStats();
     }
-  }, [dateFilter, isAdmin]);
+  }, [dateFilter, groupBy, isAdmin]);
 
   const checkAdminAndLoad = async () => {
     try {
@@ -83,7 +91,7 @@ export default function Admin() {
     try {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, email, name, created_at')
+        .select('id, email, name, phone, city, country, created_at')
         .order('created_at', { ascending: false });
 
       if (!profiles) return;
@@ -103,7 +111,7 @@ export default function Admin() {
           .eq('activity_type', 'login')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (activity) {
           user.last_sign_in_at = activity.created_at;
@@ -158,17 +166,43 @@ export default function Admin() {
 
       const uniqueUsers = new Set(activities?.map(a => a.user_id) || []).size;
 
-      // Group by date
-      const visitsByDate = activities?.reduce((acc: any, activity) => {
-        const date = formatDate(new Date(activity.created_at));
-        acc[date] = (acc[date] || 0) + 1;
+      // Group by selected period
+      const visitsByPeriod = activities?.reduce((acc: any, activity) => {
+        const date = new Date(activity.created_at);
+        let key = '';
+
+        switch (groupBy) {
+          case 'day':
+            key = formatDate(date);
+            break;
+          case 'week':
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay());
+            key = formatDate(weekStart);
+            break;
+          case 'month':
+            key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            break;
+          case 'year':
+            key = date.getFullYear().toString();
+            break;
+        }
+
+        if (!acc[key]) {
+          acc[key] = { visits: 0, users: new Set() };
+        }
+        acc[key].visits++;
+        acc[key].users.add(activity.user_id);
         return acc;
       }, {});
 
-      const visitsByDateArray = Object.entries(visitsByDate || {}).map(([date, count]) => ({
-        date,
-        count: count as number,
-      }));
+      const visitsByDateArray = Object.entries(visitsByPeriod || {})
+        .map(([date, data]: [string, any]) => ({
+          date,
+          visits: data.visits,
+          unique: data.users.size,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
 
       setStats({
         total_visits: count || 0,
@@ -197,8 +231,23 @@ export default function Admin() {
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Панель администратора</h1>
 
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap gap-4 items-center">
         <DateFilter onFilterChange={setDateFilter} />
+        
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Группировка:</span>
+          <Select value={groupBy} onValueChange={(value: GroupBy) => setGroupBy(value)}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">По дням</SelectItem>
+              <SelectItem value="week">По неделям</SelectItem>
+              <SelectItem value="month">По месяцам</SelectItem>
+              <SelectItem value="year">По годам</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 mb-8">
@@ -208,7 +257,7 @@ export default function Admin() {
             <CardDescription>За выбранный период</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold">{stats.total_visits}</div>
+            <div className="text-4xl font-bold text-primary">{stats.total_visits}</div>
           </CardContent>
         </Card>
 
@@ -218,10 +267,60 @@ export default function Admin() {
             <CardDescription>За выбранный период</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold">{stats.unique_users}</div>
+            <div className="text-4xl font-bold text-secondary">{stats.unique_users}</div>
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>График активности</CardTitle>
+          <CardDescription>
+            Всего посещений и уникальных пользователей
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stats.visits_by_date.length > 0 ? (
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={stats.visits_by_date}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="date" 
+                  className="text-xs"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis className="text-xs" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px'
+                  }}
+                />
+                <Legend />
+                <Bar 
+                  dataKey="visits" 
+                  fill="hsl(var(--primary))" 
+                  name="Всего посещений"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar 
+                  dataKey="unique" 
+                  fill="hsl(var(--secondary))" 
+                  name="Уникальных пользователей"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-center text-muted-foreground py-8">
+              Нет данных за выбранный период
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -236,6 +335,9 @@ export default function Admin() {
               <TableRow>
                 <TableHead>Имя</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Телефон</TableHead>
+                <TableHead>Город</TableHead>
+                <TableHead>Страна</TableHead>
                 <TableHead>Дата регистрации</TableHead>
                 <TableHead>Последний вход</TableHead>
               </TableRow>
@@ -245,6 +347,9 @@ export default function Admin() {
                 <TableRow key={user.id}>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone || '—'}</TableCell>
+                  <TableCell>{user.city || '—'}</TableCell>
+                  <TableCell>{user.country || '—'}</TableCell>
                   <TableCell>{formatDate(new Date(user.created_at))}</TableCell>
                   <TableCell>
                     {user.last_sign_in_at
