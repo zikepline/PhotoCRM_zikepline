@@ -67,13 +67,11 @@ export function Sidebar() {
       <div className="p-6 border-b border-sidebar-border flex items-center justify-start">
         <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center">
           <span className="flex-shrink-0">P</span>
-          <span className={cn(
-            "transition-opacity duration-200 overflow-hidden",
-            collapsed ? "w-0 opacity-0" : "opacity-100",
-            showText && !collapsed ? "opacity-100" : "opacity-0"
-          )}>
-            hotoCRM
-          </span>
+          {showText && !collapsed && (
+            <span className="transition-opacity duration-200">
+              hotoCRM
+            </span>
+          )}
         </h1>
       </div>
       
@@ -96,13 +94,11 @@ export function Sidebar() {
                 <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
                   <item.icon className="w-5 h-5" />
                 </div>
-                <span className={cn(
-                  "whitespace-nowrap transition-opacity duration-200 ml-3 overflow-hidden",
-                  collapsed ? "w-0 opacity-0" : "",
-                  showText && !collapsed ? "opacity-100" : "opacity-0"
-                )}>
-                  {item.title}
-                </span>
+                {showText && !collapsed && (
+                  <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
+                    {item.title}
+                  </span>
+                )}
               </NavLink>
             </li>
           ))}
@@ -112,42 +108,35 @@ export function Sidebar() {
       <div className="p-4 border-t border-sidebar-border space-y-2">
         {!isLoading && user && (
           <div className="flex items-center h-12 px-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <div className={cn(
-              "flex-1 min-w-0 ml-3 transition-opacity duration-200 overflow-hidden",
-              collapsed ? "w-0 opacity-0" : "",
-              showText && !collapsed ? "opacity-100" : "opacity-0"
-            )}>
-              <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                {user.user_metadata?.name || 'Пользователь'}
+            {showText && !collapsed && (
+              <div className="flex-1 min-w-0 ml-3 transition-opacity duration-200">
+                <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                  {user.user_metadata?.name || 'Пользователь'}
+                </div>
+                <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
+                  {user.email}
+                </div>
               </div>
-              <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
-                {user.email}
-              </div>
-            </div>
+            )}
           </div>
         )}
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className={cn(
-            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 px-3",
-            collapsed ? "w-14 justify-center" : "w-full justify-start"
-          )}
+          className="flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 w-full px-3"
           title={collapsed ? "Выход" : undefined}
         >
           <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
             <LogOut className="w-5 h-5" />
           </div>
-          <span className={cn(
-            "whitespace-nowrap transition-opacity duration-200 ml-3 overflow-hidden",
-            collapsed ? "w-0 opacity-0" : "",
-            showText && !collapsed ? "opacity-100" : "opacity-0"
-          )}>
-            Выход
-          </span>
+          {showText && !collapsed && (
+            <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
+              Выход
+            </span>
+          )}
         </Button>
       </div>
 

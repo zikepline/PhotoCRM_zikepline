@@ -26,19 +26,32 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
   };
 
   const handleDateRangeSelect = (range: DateRange | undefined) => {
-    // Если уже есть полный диапазон (from и to), начинаем новый выбор
+    // Логика: 1 клик - старт, 2 клик - конец, 3 клик - новый старт, 4 клик - конец
     if (dateRange?.from && dateRange?.to) {
+      // Если уже есть полный диапазон, начинаем новый выбор
       setDateRange({ from: range?.from, to: undefined });
       return;
     }
     
-    setDateRange(range);
-    if (range?.from && range?.to) {
-      setActiveFilter('custom');
-      // Устанавливаем конец дня для endDate, чтобы включить заказы за этот день
-      const endOfDay = new Date(range.to);
-      endOfDay.setHours(23, 59, 59, 999);
-      onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
+    if (!dateRange?.from || (dateRange?.from && !dateRange?.to && range?.to)) {
+      // Первый клик или второй клик (установка конца)
+      setDateRange(range);
+      if (range?.from && range?.to) {
+        setActiveFilter('custom');
+        // Устанавливаем конец дня для endDate, чтобы включить заказы за этот день
+        const endOfDay = new Date(range.to);
+        endOfDay.setHours(23, 59, 59, 999);
+        onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
+      }
+    } else if (dateRange?.from && !dateRange?.to && range?.from) {
+      // Есть старт, но нет конца - устанавливаем конец
+      setDateRange(range);
+      if (range?.from && range?.to) {
+        setActiveFilter('custom');
+        const endOfDay = new Date(range.to);
+        endOfDay.setHours(23, 59, 59, 999);
+        onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
+      }
     }
   };
 
