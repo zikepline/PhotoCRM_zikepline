@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Kanban, Calculator, Users, Building2, CheckSquare, User as UserIcon, Shield, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
@@ -15,12 +16,12 @@ const navItems = [
   { title: 'Контакты', url: '/contacts', icon: Users },
   { title: 'Компании', url: '/companies', icon: Building2 },
   { title: 'Задачи', url: '/tasks', icon: CheckSquare },
-  { title: 'Профиль', url: '/profile', icon: UserIcon },
 ];
 
 export function Sidebar() {
   const { collapsed, setCollapsed } = useSidebarContext();
   const [user, setUser] = useState<User | null>(null);
+  const [profileData, setProfileData] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showText, setShowText] = useState(!collapsed);
@@ -38,10 +39,21 @@ export function Sidebar() {
       setIsAdmin(!!data);
     };
 
+    const loadProfile = async (userId: string) => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      setProfileData(data);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         checkAdmin(session.user.id);
+        loadProfile(session.user.id);
       }
       setIsLoading(false);
     });
@@ -50,8 +62,10 @@ export function Sidebar() {
       setUser(session?.user ?? null);
       if (session?.user) {
         checkAdmin(session.user.id);
+        loadProfile(session.user.id);
       } else {
         setIsAdmin(false);
+        setProfileData(null);
       }
       setIsLoading(false);
     });
@@ -171,18 +185,21 @@ export function Sidebar() {
           )}
         </Button>
         
-        {!isLoading && user && (
+        {!isLoading && user && profileData && (
           <button
             onClick={() => navigate('/profile')}
             className="flex items-center h-12 px-2 w-full hover:bg-sidebar-accent rounded-lg transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
-              {user.email?.charAt(0).toUpperCase() || 'U'}
-            </div>
+            <Avatar className="w-10 h-10 flex-shrink-0">
+              <AvatarImage src={profileData.avatar_url || undefined} />
+              <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                {profileData.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
             {showText && !collapsed && (
               <div className="flex-1 min-w-0 ml-3 transition-opacity duration-200">
                 <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                  {user.user_metadata?.name || 'Пользователь'}
+                  {profileData.name || 'Пользователь'}
                 </div>
                 <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
                   {user.email}
