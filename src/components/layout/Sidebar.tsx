@@ -42,7 +42,7 @@ export function Sidebar() {
     if (collapsed) {
       setShowText(false);
     } else {
-      const timer = setTimeout(() => setShowText(true), 300);
+      const timer = setTimeout(() => setShowText(true), 150);
       return () => clearTimeout(timer);
     }
   }, [collapsed]);
@@ -68,9 +68,9 @@ export function Sidebar() {
         <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center">
           <span className="flex-shrink-0">P</span>
           <span className={cn(
-            "transition-opacity duration-300 overflow-hidden",
+            "transition-opacity duration-200 overflow-hidden",
             collapsed ? "w-0 opacity-0" : "opacity-100",
-            showText ? "opacity-100" : "opacity-0"
+            showText && !collapsed ? "opacity-100" : "opacity-0"
           )}>
             hotoCRM
           </span>
@@ -97,7 +97,7 @@ export function Sidebar() {
                   <item.icon className="w-5 h-5" />
                 </div>
                 <span className={cn(
-                  "whitespace-nowrap transition-opacity duration-300 ml-3 overflow-hidden",
+                  "whitespace-nowrap transition-opacity duration-200 ml-3 overflow-hidden",
                   collapsed ? "w-0 opacity-0" : "",
                   showText && !collapsed ? "opacity-100" : "opacity-0"
                 )}>
@@ -116,7 +116,7 @@ export function Sidebar() {
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className={cn(
-              "flex-1 min-w-0 ml-3 transition-opacity duration-300 overflow-hidden",
+              "flex-1 min-w-0 ml-3 transition-opacity duration-200 overflow-hidden",
               collapsed ? "w-0 opacity-0" : "",
               showText && !collapsed ? "opacity-100" : "opacity-0"
             )}>
@@ -132,14 +132,17 @@ export function Sidebar() {
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 w-full px-3"
+          className={cn(
+            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 px-3",
+            collapsed ? "w-14 justify-center" : "w-full justify-start"
+          )}
           title={collapsed ? "Выход" : undefined}
         >
           <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
             <LogOut className="w-5 h-5" />
           </div>
           <span className={cn(
-            "whitespace-nowrap transition-opacity duration-300 ml-3 overflow-hidden",
+            "whitespace-nowrap transition-opacity duration-200 ml-3 overflow-hidden",
             collapsed ? "w-0 opacity-0" : "",
             showText && !collapsed ? "opacity-100" : "opacity-0"
           )}>

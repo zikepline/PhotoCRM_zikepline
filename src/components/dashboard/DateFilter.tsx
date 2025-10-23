@@ -26,9 +26,9 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
   };
 
   const handleDateRangeSelect = (range: DateRange | undefined) => {
-    // Если уже есть полный диапазон, сбрасываем и начинаем новый выбор
-    if (dateRange?.from && dateRange?.to && range?.from) {
-      setDateRange({ from: range.from, to: undefined });
+    // Если уже есть полный диапазон (from и to), начинаем новый выбор
+    if (dateRange?.from && dateRange?.to) {
+      setDateRange({ from: range?.from, to: undefined });
       return;
     }
     
@@ -90,10 +90,9 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
             initialFocus
             className="pointer-events-auto"
             classNames={{
-              day_selected: "bg-blue-100/30 text-foreground hover:bg-blue-100/40",
-              day_range_start: "bg-blue-400 text-white hover:bg-blue-500 rounded-l-md rounded-r-none",
-              day_range_end: "bg-blue-400 text-white hover:bg-blue-500 rounded-r-md rounded-l-none",
-              day_range_middle: "bg-blue-100/30 text-foreground rounded-none",
+              day_range_start: "bg-blue-400 text-white hover:bg-blue-500 rounded-md",
+              day_range_end: "bg-blue-400 text-white hover:bg-blue-500 rounded-md",
+              day_range_middle: "bg-blue-100/20 text-foreground hover:bg-blue-100/30 rounded-none",
               day_today: "bg-purple-500 text-white font-semibold"
             }}
           />
