@@ -26,33 +26,27 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
   };
 
   const handleDateRangeSelect = (range: DateRange | undefined) => {
-    // Логика: 1 клик - старт, 2 клик - конец, 3 клик - новый старт, 4 клик - конец
+    if (!range?.from) return;
+
+    // Если уже есть полный диапазон (from и to), начинаем новый выбор
     if (dateRange?.from && dateRange?.to) {
-      // Если уже есть полный диапазон, начинаем новый выбор
-      setDateRange({ from: range?.from, to: undefined });
+      setDateRange({ from: range.from, to: undefined });
       return;
     }
-    
-    if (!dateRange?.from || (dateRange?.from && !dateRange?.to && range?.to)) {
-      // Первый клик или второй клик (установка конца)
-      setDateRange(range);
-      if (range?.from && range?.to) {
-        setActiveFilter('custom');
-        // Устанавливаем конец дня для endDate, чтобы включить заказы за этот день
-        const endOfDay = new Date(range.to);
-        endOfDay.setHours(23, 59, 59, 999);
-        onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
-      }
-    } else if (dateRange?.from && !dateRange?.to && range?.from) {
-      // Есть старт, но нет конца - устанавливаем конец
-      setDateRange(range);
-      if (range?.from && range?.to) {
-        setActiveFilter('custom');
-        const endOfDay = new Date(range.to);
-        endOfDay.setHours(23, 59, 59, 999);
-        onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
-      }
+
+    // Если есть только from, устанавливаем to
+    if (dateRange?.from && !dateRange?.to) {
+      const newRange = { from: dateRange.from, to: range.from };
+      setDateRange(newRange);
+      setActiveFilter('custom');
+      const endOfDay = new Date(range.from);
+      endOfDay.setHours(23, 59, 59, 999);
+      onFilterChange({ type: 'custom', startDate: dateRange.from, endDate: endOfDay });
+      return;
     }
+
+    // Первый клик - устанавливаем from
+    setDateRange({ from: range.from, to: undefined });
   };
 
   return (
@@ -103,10 +97,10 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
             initialFocus
             className="pointer-events-auto"
             classNames={{
-              day_range_start: "bg-blue-400 text-white hover:bg-blue-500 rounded-md",
-              day_range_end: "bg-blue-400 text-white hover:bg-blue-500 rounded-md",
-              day_range_middle: "bg-blue-100/20 text-foreground hover:bg-blue-100/30 rounded-none",
-              day_today: "bg-purple-500 text-white font-semibold"
+              day_range_start: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-md",
+              day_range_end: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-md",
+              day_range_middle: "bg-primary/10 text-foreground hover:bg-primary/20 rounded-none",
+              day_today: "bg-accent text-accent-foreground font-semibold"
             }}
           />
         </PopoverContent>

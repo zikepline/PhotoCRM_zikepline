@@ -152,8 +152,30 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-sidebar-border space-y-2">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className={cn(
+            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 px-3",
+            collapsed ? "w-12 justify-center" : "w-full"
+          )}
+          title={collapsed ? "Выход" : undefined}
+        >
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+            <LogOut className="w-5 h-5" />
+          </div>
+          {showText && !collapsed && (
+            <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
+              Выход
+            </span>
+          )}
+        </Button>
+        
         {!isLoading && user && (
-          <div className="flex items-center h-12 px-2">
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex items-center h-12 px-2 w-full hover:bg-sidebar-accent rounded-lg transition-colors"
+          >
             <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
@@ -167,23 +189,8 @@ export function Sidebar() {
                 </div>
               </div>
             )}
-          </div>
+          </button>
         )}
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className="flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 w-full px-3"
-          title={collapsed ? "Выход" : undefined}
-        >
-          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-            <LogOut className="w-5 h-5" />
-          </div>
-          {showText && !collapsed && (
-            <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
-              Выход
-            </span>
-          )}
-        </Button>
       </div>
 
       <Button
