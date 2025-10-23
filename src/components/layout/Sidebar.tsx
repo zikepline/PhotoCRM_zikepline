@@ -42,7 +42,7 @@ export function Sidebar() {
     if (collapsed) {
       setShowText(false);
     } else {
-      const timer = setTimeout(() => setShowText(true), 200);
+      const timer = setTimeout(() => setShowText(true), 300);
       return () => clearTimeout(timer);
     }
   }, [collapsed]);
@@ -64,20 +64,14 @@ export function Sidebar() {
       "fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-50",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="p-6 border-b border-sidebar-border">
-        {collapsed ? (
-          <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent text-center">
-            P
-          </div>
-        ) : (
-          <>
-            <h1 className={`text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>
-              PhotoCRM
-            </h1>
-            <p className={`text-sm text-sidebar-foreground/70 mt-1 whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>
-              Система управления
-            </p>
-          </>
+      <div className="p-6 border-b border-sidebar-border flex items-center gap-3">
+        <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent flex-shrink-0">
+          P
+        </div>
+        {!collapsed && (
+          <h1 className={`text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+            hotoCRM
+          </h1>
         )}
       </div>
       
@@ -90,9 +84,10 @@ export function Sidebar() {
                 end
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
+                    'flex items-center rounded-lg transition-all duration-200',
                     'text-sidebar-foreground hover:bg-sidebar-accent',
-                    isActive && 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                    isActive && 'bg-sidebar-primary text-sidebar-primary-foreground font-medium',
+                    collapsed ? 'w-14 h-14 justify-center' : 'gap-3 px-4 py-3'
                   )
                 }
                 title={collapsed ? item.title : undefined}
@@ -107,7 +102,7 @@ export function Sidebar() {
       
       <div className="p-4 border-t border-sidebar-border space-y-2">
         {!isLoading && user && (
-          <div className={cn("flex items-center gap-3 px-4 py-3", collapsed && "justify-center")}>
+          <div className="flex items-center gap-3 px-2 py-3">
             <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
@@ -127,13 +122,13 @@ export function Sidebar() {
           variant="ghost"
           onClick={handleLogout}
           className={cn(
-            "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent",
-            collapsed && "justify-center px-2"
+            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent",
+            collapsed ? "w-14 h-14 justify-center" : "w-full justify-start gap-3 px-4 py-3"
           )}
           title={collapsed ? "Выход" : undefined}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>Выход</span>}
+          {!collapsed && <span className={`whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>Выход</span>}
         </Button>
       </div>
 

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon } from 'lucide-react';
 import { DateFilter as DateFilterType } from '@/types/crm';
 import { formatDate } from '@/lib/utils/calculations';
+import { DateRange } from 'react-day-picker';
 
 interface DateFilterProps {
   onFilterChange: (filter: DateFilterType) => void;
@@ -13,22 +14,25 @@ interface DateFilterProps {
 
 export function DateFilter({ onFilterChange }: DateFilterProps) {
   const [activeFilter, setActiveFilter] = useState<DateFilterType['type']>('current_month');
-  const [customStartDate, setCustomStartDate] = useState<Date>();
-  const [customEndDate, setCustomEndDate] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const handleFilterClick = (type: DateFilterType['type']) => {
     setActiveFilter(type);
-    if (type === 'custom' && customStartDate && customEndDate) {
-      onFilterChange({ type, startDate: customStartDate, endDate: customEndDate });
+    if (type === 'custom' && dateRange?.from && dateRange?.to) {
+      onFilterChange({ type, startDate: dateRange.from, endDate: dateRange.to });
     } else {
       onFilterChange({ type });
     }
   };
 
-  const handleCustomDateChange = () => {
-    if (customStartDate && customEndDate) {
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range?.from && range?.to) {
       setActiveFilter('custom');
-      onFilterChange({ type: 'custom', startDate: customStartDate, endDate: customEndDate });
+      // Устанавливаем конец дня для endDate, чтобы включить заказы за этот день
+      const endOfDay = new Date(range.to);
+      endOfDay.setHours(23, 59, 59, 999);
+      onFilterChange({ type: 'custom', startDate: range.from, endDate: endOfDay });
     }
   };
 
@@ -64,40 +68,29 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
             className={cn('justify-start text-left font-normal')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {customStartDate && customEndDate ? (
-              `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`
+            {dateRange?.from && dateRange?.to ? (
+              `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}`
             ) : (
               'Произвольная дата'
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-4" align="start">
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium mb-2">Дата начала</p>
-              <Calendar
-                mode="single"
-                selected={customStartDate}
-                onSelect={setCustomStartDate}
-                initialFocus
-              />
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-2">Дата окончания</p>
-              <Calendar
-                mode="single"
-                selected={customEndDate}
-                onSelect={setCustomEndDate}
-              />
-            </div>
-            <Button 
-              onClick={handleCustomDateChange} 
-              className="w-full"
-              disabled={!customStartDate || !customEndDate}
-            >
-              Применить
-            </Button>
-          </div>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="range"
+            selected={dateRange}
+            onSelect={handleDateRangeSelect}
+            numberOfMonths={1}
+            initialFocus
+            className="pointer-events-auto"
+            classNames={{
+              day_selected: "bg-primary/20 text-primary-foreground hover:bg-primary/30",
+              day_range_start: "bg-primary text-primary-foreground hover:bg-primary",
+              day_range_end: "bg-primary text-primary-foreground hover:bg-primary",
+              day_range_middle: "bg-primary/10 text-foreground",
+              day_today: "bg-accent text-accent-foreground"
+            }}
+          />
         </PopoverContent>
       </Popover>
     </div>
