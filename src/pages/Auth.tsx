@@ -40,6 +40,15 @@ export default function Auth() {
 
       if (signInError) throw signInError;
 
+      // Track activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('user_activity').insert({
+          user_id: user.id,
+          activity_type: 'login',
+        });
+      }
+
       toast.success('Регистрация успешна! Добро пожаловать!');
       navigate('/');
     } catch (error: any) {
@@ -60,6 +69,15 @@ export default function Auth() {
       });
 
       if (error) throw error;
+
+      // Track activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('user_activity').insert({
+          user_id: user.id,
+          activity_type: 'login',
+        });
+      }
 
       toast.success('Вход выполнен успешно!');
       navigate('/');

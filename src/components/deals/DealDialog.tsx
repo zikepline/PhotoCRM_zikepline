@@ -49,38 +49,49 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
     photographerPaymentType: 'percent',
     photographerPercent: 0,
     photographerFixed: 0,
-    taxBase: 'net_profit',
-    taxPercent: 6,
   });
 
   useEffect(() => {
-    if (deal) {
-      setFormData({
-        ...deal,
-        links: deal.links || []
-      });
-    } else {
-      setFormData({
-        title: '',
-        status: 'new',
-        description: '',
-        phone: '',
-        email: '',
-        links: [],
-        tags: [],
-        albumPrice: 0,
-        childrenCount: 0,
-        printCost: 0,
-        fixedExpenses: 0,
-        schoolPaymentType: 'percent',
-        schoolPercent: 0,
-        schoolFixed: 0,
-        photographerPaymentType: 'percent',
-        photographerPercent: 0,
-        photographerFixed: 0,
-        taxBase: 'net_profit',
-        taxPercent: 6,
-      });
+    const loadProfileSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tax_rate, tax_base')
+        .eq('id', user.id)
+        .single();
+
+      if (deal) {
+        setFormData({
+          ...deal,
+          links: deal.links || []
+        });
+      } else {
+        setFormData({
+          title: '',
+          status: 'new',
+          description: '',
+          phone: '',
+          email: '',
+          links: [],
+          tags: [],
+          albumPrice: 0,
+          childrenCount: 0,
+          printCost: 0,
+          fixedExpenses: 0,
+          schoolPaymentType: 'percent',
+          schoolPercent: 0,
+          schoolFixed: 0,
+          photographerPaymentType: 'percent',
+          photographerPercent: 0,
+          photographerFixed: 0,
+        });
+      }
+    };
+
+    if (open) {
+      loadProfileSettings();
     }
   }, [deal, open]);
 
@@ -120,6 +131,13 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
         return;
       }
 
+      // Get tax settings from profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tax_rate, tax_base')
+        .eq('id', user.id)
+        .single();
+
       const dealData = {
         title: formData.title,
         amount: calculatedAmount,
@@ -137,8 +155,8 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
         photographer_payment_type: formData.photographerPaymentType,
         photographer_percent: formData.photographerPercent,
         photographer_fixed: formData.photographerFixed,
-        tax_base: formData.taxBase,
-        tax_percent: formData.taxPercent,
+        tax_base: profile?.tax_base || 'net_profit',
+        tax_percent: profile?.tax_rate || 6,
         user_id: user.id,
       };
 
@@ -392,35 +410,6 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                 </div>
               </div>
 
-              <div className="col-span-2">
-                <Label className="mb-2 block">Налогооблагаемая база</Label>
-                <RadioGroup
-                  value={formData.taxBase}
-                  onValueChange={(value) => setFormData({ ...formData, taxBase: value as 'revenue' | 'net_profit' })}
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="revenue" id="deal-tax-revenue" />
-                    <Label htmlFor="deal-tax-revenue" className="cursor-pointer">Выручка</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="net_profit" id="deal-tax-profit" />
-                    <Label htmlFor="deal-tax-profit" className="cursor-pointer">Чистая прибыль</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label htmlFor="taxPercent">Налог (%)</Label>
-                <Input
-                  id="taxPercent"
-                  type="number"
-                  value={formData.taxPercent || ''}
-                  onChange={(e) => setFormData({ ...formData, taxPercent: e.target.value ? parseFloat(e.target.value) : 0 })}
-                  onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                  onWheel={(e) => e.currentTarget.blur()}
-                />
-              </div>
             </div>
           </div>
 

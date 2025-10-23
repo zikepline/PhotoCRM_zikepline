@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Kanban, Calculator, Users, Building2, CheckSquare, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { LayoutDashboard, Kanban, Calculator, Users, Building2, CheckSquare, User as UserIcon, Shield, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,23 +15,44 @@ const navItems = [
   { title: 'Контакты', url: '/contacts', icon: Users },
   { title: 'Компании', url: '/companies', icon: Building2 },
   { title: 'Задачи', url: '/tasks', icon: CheckSquare },
+  { title: 'Профиль', url: '/profile', icon: UserIcon },
 ];
 
 export function Sidebar() {
   const { collapsed, setCollapsed } = useSidebarContext();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showText, setShowText] = useState(!collapsed);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkAdmin = async (userId: string) => {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .single();
+      
+      setIsAdmin(!!data);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdmin(session.user.id);
+      }
       setIsLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdmin(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
       setIsLoading(false);
     });
 
@@ -102,6 +123,31 @@ export function Sidebar() {
               </NavLink>
             </li>
           ))}
+          
+          {isAdmin && (
+            <li>
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center rounded-lg transition-colors duration-200 h-12 px-3',
+                    'text-sidebar-foreground hover:bg-sidebar-accent',
+                    isActive && 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                  )
+                }
+                title={collapsed ? 'Админ панель' : undefined}
+              >
+                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5" />
+                </div>
+                {showText && !collapsed && (
+                  <span className="whitespace-nowrap transition-opacity duration-200 ml-3">
+                    Админ панель
+                  </span>
+                )}
+              </NavLink>
+            </li>
+          )}
         </ul>
       </nav>
       
