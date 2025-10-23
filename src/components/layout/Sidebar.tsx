@@ -64,15 +64,17 @@ export function Sidebar() {
       "fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-50",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="p-6 border-b border-sidebar-border flex items-center gap-3">
-        <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent flex-shrink-0">
-          P
-        </div>
-        {!collapsed && (
-          <h1 className={`text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="p-6 border-b border-sidebar-border flex items-center justify-start">
+        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center">
+          <span className="flex-shrink-0">P</span>
+          <span className={cn(
+            "transition-opacity duration-300 overflow-hidden",
+            collapsed ? "w-0 opacity-0" : "opacity-100",
+            showText ? "opacity-100" : "opacity-0"
+          )}>
             hotoCRM
-          </h1>
-        )}
+          </span>
+        </h1>
       </div>
       
       <nav className="flex-1 p-4">
@@ -84,16 +86,23 @@ export function Sidebar() {
                 end
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center rounded-lg transition-all duration-200',
+                    'flex items-center rounded-lg transition-colors duration-200 h-12 px-3',
                     'text-sidebar-foreground hover:bg-sidebar-accent',
-                    isActive && 'bg-sidebar-primary text-sidebar-primary-foreground font-medium',
-                    collapsed ? 'w-14 h-14 justify-center' : 'gap-3 px-4 py-3'
+                    isActive && 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                   )
                 }
                 title={collapsed ? item.title : undefined}
               >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                {!collapsed && <span className={`whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>{item.title}</span>}
+                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <span className={cn(
+                  "whitespace-nowrap transition-opacity duration-300 ml-3 overflow-hidden",
+                  collapsed ? "w-0 opacity-0" : "",
+                  showText && !collapsed ? "opacity-100" : "opacity-0"
+                )}>
+                  {item.title}
+                </span>
               </NavLink>
             </li>
           ))}
@@ -102,33 +111,40 @@ export function Sidebar() {
       
       <div className="p-4 border-t border-sidebar-border space-y-2">
         {!isLoading && user && (
-          <div className="flex items-center gap-3 px-2 py-3">
+          <div className="flex items-center h-12 px-2">
             <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
-            {!collapsed && (
-              <div className={`flex-1 min-w-0 transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>
-                <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                  {user.user_metadata?.name || 'Пользователь'}
-                </div>
-                <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
-                  {user.email}
-                </div>
+            <div className={cn(
+              "flex-1 min-w-0 ml-3 transition-opacity duration-300 overflow-hidden",
+              collapsed ? "w-0 opacity-0" : "",
+              showText && !collapsed ? "opacity-100" : "opacity-0"
+            )}>
+              <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                {user.user_metadata?.name || 'Пользователь'}
               </div>
-            )}
+              <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
+                {user.email}
+              </div>
+            </div>
           </div>
         )}
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className={cn(
-            "flex items-center text-sidebar-foreground hover:bg-sidebar-accent",
-            collapsed ? "w-14 h-14 justify-center" : "w-full justify-start gap-3 px-4 py-3"
-          )}
+          className="flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12 w-full px-3"
           title={collapsed ? "Выход" : undefined}
         >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className={`whitespace-nowrap transition-opacity duration-200 ${showText ? 'opacity-100' : 'opacity-0'}`}>Выход</span>}
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+            <LogOut className="w-5 h-5" />
+          </div>
+          <span className={cn(
+            "whitespace-nowrap transition-opacity duration-300 ml-3 overflow-hidden",
+            collapsed ? "w-0 opacity-0" : "",
+            showText && !collapsed ? "opacity-100" : "opacity-0"
+          )}>
+            Выход
+          </span>
         </Button>
       </div>
 
