@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon } from 'lucide-react';
 import { DateFilter as DateFilterType } from '@/types/crm';
 import { formatDate } from '@/lib/utils/calculations';
-import { DateRange } from 'react-day-picker';
 
 interface DateFilterProps {
   onFilterChange: (filter: DateFilterType) => void;
@@ -14,45 +13,38 @@ interface DateFilterProps {
 
 export function DateFilter({ onFilterChange }: DateFilterProps) {
   const [activeFilter, setActiveFilter] = useState<DateFilterType['type']>('current_month');
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
 
   const handleFilterClick = (type: DateFilterType['type']) => {
     setActiveFilter(type);
-    if (type === 'custom' && dateRange?.from && dateRange?.to) {
-      onFilterChange({ type, startDate: dateRange.from, endDate: dateRange.to });
+    if (type === 'custom' && startDate && endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      onFilterChange({ type, startDate, endDate: endOfDay });
     } else {
       onFilterChange({ type });
     }
   };
 
-  const handleDateRangeSelect = (range: DateRange | undefined) => {
-    if (!range?.from) return;
-
-    // Если уже есть полный диапазон, начинаем новый выбор
-    if (dateRange?.from && dateRange?.to) {
-      setDateRange({ from: range.from, to: undefined });
-      return;
-    }
-
-    // Если есть только from и новая дата отличается
-    if (dateRange?.from && !dateRange?.to) {
-      // Если выбрана та же дата, игнорируем
-      if (range.from.getTime() === dateRange.from.getTime()) {
-        return;
-      }
-      
-      // Устанавливаем to и применяем фильтр
-      const newRange = { from: dateRange.from, to: range.from };
-      setDateRange(newRange);
+  const handleStartDateSelect = (date: Date | undefined) => {
+    setStartDate(date);
+    if (date && endDate) {
       setActiveFilter('custom');
-      const endOfDay = new Date(range.from);
+      const endOfDay = new Date(endDate);
       endOfDay.setHours(23, 59, 59, 999);
-      onFilterChange({ type: 'custom', startDate: dateRange.from, endDate: endOfDay });
-      return;
+      onFilterChange({ type: 'custom', startDate: date, endDate: endOfDay });
     }
+  };
 
-    // Первый клик - устанавливаем from
-    setDateRange({ from: range.from, to: undefined });
+  const handleEndDateSelect = (date: Date | undefined) => {
+    setEndDate(date);
+    if (startDate && date) {
+      setActiveFilter('custom');
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      onFilterChange({ type: 'custom', startDate, endDate: endOfDay });
+    }
   };
 
   return (
@@ -87,27 +79,38 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
             className={cn('justify-start text-left font-normal')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange?.from && dateRange?.to ? (
-              `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}`
-            ) : (
-              'Произвольная дата'
-            )}
+            {startDate ? formatDate(startDate) : 'Дата начала'}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
-            mode="range"
-            selected={dateRange}
-            onSelect={handleDateRangeSelect}
-            numberOfMonths={1}
+            mode="single"
+            selected={startDate}
+            onSelect={handleStartDateSelect}
             initialFocus
             className="pointer-events-auto"
-            classNames={{
-              day_range_start: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-md",
-              day_range_end: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-md",
-              day_range_middle: "bg-primary/10 text-foreground hover:bg-primary/20 rounded-none",
-              day_today: "bg-accent text-accent-foreground font-semibold"
-            }}
+          />
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={activeFilter === 'custom' ? 'default' : 'outline'}
+            size="sm"
+            className={cn('justify-start text-left font-normal')}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {endDate ? formatDate(endDate) : 'Дата окончания'}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={endDate}
+            onSelect={handleEndDateSelect}
+            initialFocus
+            className="pointer-events-auto"
           />
         </PopoverContent>
       </Popover>

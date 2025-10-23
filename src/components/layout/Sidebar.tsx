@@ -42,7 +42,7 @@ export function Sidebar() {
     const loadProfile = async (userId: string) => {
       const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select('name, avatar_url')
         .eq('id', userId)
         .single();
       

@@ -13,6 +13,7 @@ export default function CompleteProfile() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const [profession, setProfession] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +29,7 @@ export default function CompleteProfile() {
           phone,
           city,
           country,
+          profession,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -87,6 +89,16 @@ export default function CompleteProfile() {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 placeholder="Россия"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profession">Профессия</Label>
+              <Input
+                id="profession"
+                value={profession}
+                onChange={(e) => setProfession(e.target.value)}
+                placeholder="Фотограф, ретушер, верстальщик"
               />
             </div>
 

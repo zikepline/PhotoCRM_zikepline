@@ -299,6 +299,24 @@ export default function Admin() {
                     borderRadius: '6px'
                   }}
                 />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-popover p-3 border rounded-md shadow-lg">
+                          <p className="text-sm font-medium mb-1">{payload[0].payload.date}</p>
+                          <p className="text-sm" style={{ color: 'hsl(var(--primary))' }}>
+                            Всего посещений: {payload[0].value}
+                          </p>
+                          <p className="text-sm" style={{ color: 'hsl(262 83% 58%)' }}>
+                            Уникальных пользователей: {payload[1]?.value || 0}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <Legend />
                 <Bar 
                   dataKey="visits" 
@@ -308,7 +326,7 @@ export default function Admin() {
                 />
                 <Bar 
                   dataKey="unique" 
-                  fill="hsl(var(--secondary))" 
+                  fill="hsl(262 83% 58%)" 
                   name="Уникальных пользователей"
                   radius={[4, 4, 0, 0]}
                 />

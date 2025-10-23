@@ -25,6 +25,7 @@ export default function Profile() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const [profession, setProfession] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -63,6 +64,7 @@ export default function Profile() {
         setPhone(profile.phone || '');
         setCity(profile.city || '');
         setCountry(profile.country || '');
+        setProfession(profile.profession || '');
       }
     } catch (error: any) {
       console.error('Error loading profile:', error);
@@ -134,6 +136,7 @@ export default function Profile() {
           phone,
           city,
           country,
+          profession,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -300,6 +303,16 @@ export default function Profile() {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 placeholder="Россия"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profession">Профессия</Label>
+              <Input
+                id="profession"
+                value={profession}
+                onChange={(e) => setProfession(e.target.value)}
+                placeholder="Фотограф, ретушер, верстальщик"
               />
             </div>
           </CardContent>
