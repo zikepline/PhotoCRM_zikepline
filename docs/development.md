@@ -1,5 +1,14 @@
 # Руководство по разработке
 
+## Winget (что это и нужно ли его ставить)
+Winget — это менеджер пакетов Windows (Windows Package Manager). В Windows 11 и большинстве актуальных версий Windows 10 он уже предустановлен как компонент «App Installer».
+
+- Как проверить наличие: выполните в PowerShell
+```powershell
+winget --version
+```
+Если команда не найдена — установите «App Installer» из Microsoft Store и перезапустите PowerShell. При отсутствии Winget можно использовать альтернативы (ручные инсталляторы, Chocolatey, Scoop), но шаги ниже предполагают наличие Winget.
+
 ## Установка всего необходимого (Windows, PowerShell)
 1) Node.js (LTS) и npm — через Winget (предпочтительно):
 ```powershell
@@ -58,6 +67,8 @@ npm run dev:up
 - запустит Vite Dev Server.
 
 Остановить Supabase: `npm run dev:down` (или `supabase stop`).
+
+Это безопасно: данные локальной БД сохранятся. Таблицы/данные удаляются только при явном сбросе (`npm run db:reset` / `supabase db reset`) или ручном удалении Docker volumes.
 
 ### Способ B: по отдельности
 1) Запустите Supabase (бэкенд):
