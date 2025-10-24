@@ -40,7 +40,7 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
       <CollapsibleTrigger className="w-full">
-        <Card className="p-3 hover:bg-accent/50 transition-colors cursor-pointer">
+        <Card className="p-3 hover:bg-muted/80 transition-colors cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calculator className="w-4 h-4 text-primary" />
@@ -56,7 +56,7 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
       </CollapsibleTrigger>
 
       <CollapsibleContent className="mt-2">
-        <Card className="p-4 space-y-3 bg-muted/50">
+        <Card className="p-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-start gap-2">
               <DollarSign className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
