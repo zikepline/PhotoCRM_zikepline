@@ -31,11 +31,33 @@ export default function Calculator() {
     setResult(calculation);
   };
 
+  // Parse numeric fields; keep string values as-is (for radio groups)
   const handleInputChange = (field: string, value: string | number) => {
-    setParams((prev) => ({
-      ...prev,
-      [field]: typeof value === 'string' ? parseFloat(value) || 0 : value,
-    }));
+    const numericFields = new Set([
+      'albumPrice',
+      'childrenCount',
+      'printCost',
+      'fixedExpenses',
+      'schoolPercent',
+      'schoolFixed',
+      'photographerPercent',
+      'photographerFixed',
+      'taxPercent',
+    ]);
+
+    setParams((prev) => {
+      if (numericFields.has(field)) {
+        const parsed = typeof value === 'number' ? value : parseFloat(value);
+        return {
+          ...prev,
+          [field]: Number.isNaN(parsed) ? 0 : parsed,
+        };
+      }
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
