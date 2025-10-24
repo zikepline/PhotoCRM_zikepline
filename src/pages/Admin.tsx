@@ -17,6 +17,7 @@ interface UserInfo {
   phone: string | null;
   city: string | null;
   country: string | null;
+  profession: string | null;
   created_at: string;
   last_sign_in_at: string | null;
 }
@@ -358,6 +359,7 @@ export default function Admin() {
                 <TableHead>Телефон</TableHead>
                 <TableHead>Город</TableHead>
                 <TableHead>Страна</TableHead>
+                <TableHead>Профессия</TableHead>
                 <TableHead>Дата регистрации</TableHead>
                 <TableHead>Последний вход</TableHead>
               </TableRow>
@@ -370,6 +372,7 @@ export default function Admin() {
                   <TableCell>{user.phone || '—'}</TableCell>
                   <TableCell>{user.city || '—'}</TableCell>
                   <TableCell>{user.country || '—'}</TableCell>
+                  <TableCell>{user.profession || '—'}</TableCell>
                   <TableCell>{formatDate(new Date(user.created_at))}</TableCell>
                   <TableCell>
                     {user.last_sign_in_at
