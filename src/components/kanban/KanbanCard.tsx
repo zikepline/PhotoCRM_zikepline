@@ -186,7 +186,7 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
             )}
 
             <div className="mb-4">
-              <DealFinancialInfo deal={deal} />
+              <DealFinancialInfo deal={deal} defaultOpen={true} />
             </div>
             
             <div className="flex justify-end gap-3">
