@@ -88,45 +88,48 @@ export default function Admin() {
     }
   };
 
-    const loadUsers = async () => {
-      try {
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, email, name, phone, city, country, profession, created_at')
-          .order('created_at', { ascending: false });
-    
-        if (!profiles) return;
-    
-        const usersInfo: UserInfo[] = [];
-    
-        for (const profile of profiles) {
-          const { data: activity } = await supabase
-            .from('user_activity')
-            .select('created_at')
-            .eq('user_id', profile.id)
-            .eq('activity_type', 'login')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-    
-          usersInfo.push({
-            ...profile,
-            last_sign_in_at: activity?.created_at || null,
-          });
-        }
-
-        const sortedUsers = usersInfo.sort((a, b) => {
-          const aTime = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
-          const bTime = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
-          return bTime - aTime;
+  const loadUsers = async () => {
+    try {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email, name, phone, city, country, profession, created_at')
+        .order('created_at', { ascending: false });
+  
+      if (!profiles) return;
+  
+      const usersInfo: UserInfo[] = [];
+  
+      for (const profile of profiles) {
+        const { data: activity } = await supabase
+          .from('user_activity')
+          .select('created_at')
+          .eq('user_id', profile.id)
+          .eq('activity_type', 'login')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+  
+        usersInfo.push({
+          ...profile,
+          last_sign_in_at: activity?.created_at || null,
         });
-    
-        setUsers(sortedUsers);
-      } catch (error: any) {
-        console.error('Error loading users:', error);
-        toast.error('Ошибка загрузки пользователей');
       }
-    };
+
+      const sortedUsers = usersInfo.sort((a, b) => {
+        if (a.last_sign_in_at && b.last_sign_in_at) {
+          return new Date(b.last_sign_in_at).getTime() - new Date(a.last_sign_in_at).getTime();
+        }
+        if (a.last_sign_in_at && !b.last_sign_in_at) return -1;
+        if (!a.last_sign_in_at && b.last_sign_in_at) return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+  
+      setUsers(sortedUsers);
+    } catch (error: any) {
+      console.error('Error loading users:', error);
+      toast.error('Ошибка загрузки пользователей');
+    }
+  };
 
   const loadStats = async () => {
     try {
