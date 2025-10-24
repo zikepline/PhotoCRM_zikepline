@@ -1,4 +1,4 @@
-<img width="1901" height="872" alt="image" src="https://github.com/user-attachments/assets/c5d89f52-3d95-41d5-babb-8d4c7db12721" />## PhotoCRM — CRM для фотографов (Vite + React + Supabase)
+## PhotoCRM — CRM для фотографов (Vite + React + Supabase)
 
 Современное веб‑приложение для управления заказами, контактами и аналитикой. Использует Vite + React + TypeScript, shadcn/ui (Radix), Tailwind CSS, TanStack Query и Supabase (Auth, Postgres, Storage) с RLS‑политиками.
 
