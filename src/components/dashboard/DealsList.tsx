@@ -102,7 +102,7 @@ export function DealsList({ deals, title, onUpdate }: DealsListProps) {
                 )}
 
                 <div className="mt-3">
-                  <DealFinancialInfo deal={deal} />
+                  <DealFinancialInfo deal={deal} defaultOpen={false} />
                 </div>
               </div>
             ))
