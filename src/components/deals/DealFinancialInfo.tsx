@@ -106,13 +106,13 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Всего затрат (с налогом):</span>
+              <span className="text-xs text-muted-foreground">Все затраты после налогооблажения:</span>
               <span className="text-xs font-medium">{formatCurrency(totalCostsWithTax)}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Режим налогообложения:</span>
-              <Badge variant="secondary" className="text-xs bg-amber-50/50 text-amber-600">
+              <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-700">
                 {taxBaseLabel}
               </Badge>
             </div>
