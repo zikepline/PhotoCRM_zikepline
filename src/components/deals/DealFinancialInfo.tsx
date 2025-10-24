@@ -35,6 +35,7 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
   });
 
   const taxBaseLabel = calculation.taxBase === 'revenue' ? 'С выручки' : 'С чистой прибыли';
+  const totalCostsWithTax = calculation.totalCosts + calculation.taxAmount;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
@@ -55,7 +56,7 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
       </CollapsibleTrigger>
 
       <CollapsibleContent className="mt-2">
-        <Card className="p-4 space-y-3 bg-accent/20">
+        <Card className="p-4 space-y-3 bg-muted/50">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-start gap-2">
               <DollarSign className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -100,8 +101,13 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
 
           <div className="pt-2 border-t border-border space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Все затраты:</span>
+              <span className="text-xs text-muted-foreground">Все затраты до налогооблажения:</span>
               <span className="text-xs font-medium">{formatCurrency(calculation.totalCosts)}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Всего затрат (с налогом):</span>
+              <span className="text-xs font-medium">{formatCurrency(totalCostsWithTax)}</span>
             </div>
 
             <div className="flex items-center justify-between">
