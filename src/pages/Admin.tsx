@@ -92,7 +92,7 @@ export default function Admin() {
     try {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, email, name, phone, city, country, created_at')
+        .select('id, email, name, phone, city, country, profession, created_at')
         .order('created_at', { ascending: false });
 
       if (!profiles) return;
