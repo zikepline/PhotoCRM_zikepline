@@ -88,43 +88,45 @@ export default function Admin() {
     }
   };
 
-  const loadUsers = async () => {
-    try {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, email, name, phone, city, country, profession, created_at')
-        .order('created_at', { ascending: false });
-
-      if (!profiles) return;
-
-      // Get last sign in data from auth metadata
-      const usersInfo: UserInfo[] = profiles.map(profile => ({
-        ...profile,
-        last_sign_in_at: null, // We'll get this from activity
-      }));
-
-      // Get last activity for each user
-      for (const user of usersInfo) {
-        const { data: activity } = await supabase
-          .from('user_activity')
-          .select('created_at')
-          .eq('user_id', user.id)
-          .eq('activity_type', 'login')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (activity) {
-          user.last_sign_in_at = activity.created_at;
+    const loadUsers = async () => {
+      try {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, email, name, phone, city, country, profession, created_at')
+          .order('created_at', { ascending: false });
+    
+        if (!profiles) return;
+    
+        const usersInfo: UserInfo[] = [];
+    
+        for (const profile of profiles) {
+          const { data: activity } = await supabase
+            .from('user_activity')
+            .select('created_at')
+            .eq('user_id', profile.id)
+            .eq('activity_type', 'login')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+    
+          usersInfo.push({
+            ...profile,
+            last_sign_in_at: activity?.created_at || null,
+          });
         }
-      }
 
-      setUsers(usersInfo);
-    } catch (error: any) {
-      console.error('Error loading users:', error);
-      toast.error('Ошибка загрузки пользователей');
-    }
-  };
+        const sortedUsers = usersInfo.sort((a, b) => {
+          const aTime = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+          const bTime = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+          return bTime - aTime;
+        });
+    
+        setUsers(sortedUsers);
+      } catch (error: any) {
+        console.error('Error loading users:', error);
+        toast.error('Ошибка загрузки пользователей');
+      }
+    };
 
   const loadStats = async () => {
     try {
