@@ -1,7 +1,7 @@
 ## PhotoCRM — CRM для фотографов (Vite + React + Supabase)
 
 Современное веб‑приложение для управления заказами, контактами и аналитикой. Основано на Vite + React + TypeScript, shadcn/ui (Radix), Tailwind CSS, TanStack Query и Supabase (Auth, Postgres, Storage) с RLS‑политиками.
-
+ 
 ### Возможности
 - Аутентификация (email/пароль, а также OAuth при настройке в Supabase)
 - Профиль и аватар (Storage bucket `avatars`)
