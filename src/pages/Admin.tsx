@@ -261,17 +261,18 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Уникальных пользователей</CardTitle>
-          <CardDescription>За выбранный период</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-4xl font-bold" style={{ color: 'hsl(262 83% 58%)' }}>
-            {stats.unique_users}
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Уникальных пользователей</CardTitle>
+            <CardDescription>За выбранный период</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold" style={{ color: 'hsl(262 83% 58%)' }}>
+              {stats.unique_users}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="mb-8">
         <CardHeader>
