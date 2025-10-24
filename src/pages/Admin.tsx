@@ -116,7 +116,7 @@ export default function Admin() {
           last_sign_in_at: activity?.created_at || null,
         });
       }
-
+  
       const sortedUsers = usersInfo.sort((a, b) => {
         if (a.last_sign_in_at && b.last_sign_in_at) {
           return new Date(b.last_sign_in_at).getTime() - new Date(a.last_sign_in_at).getTime();
@@ -127,6 +127,12 @@ export default function Admin() {
       });
   
       setUsers(sortedUsers);
+      
+      setStats(prev => ({
+        ...prev,
+        total_registered: profiles.length
+      }));
+  
     } catch (error: any) {
       console.error('Error loading users:', error);
       toast.error('Ошибка загрузки пользователей');
@@ -137,7 +143,7 @@ export default function Admin() {
     try {
       let startDate: Date | undefined;
       let endDate: Date | undefined;
-
+  
       const now = new Date();
       
       switch (dateFilter.type) {
@@ -158,31 +164,27 @@ export default function Admin() {
           endDate = dateFilter.endDate;
           break;
       }
-
+  
       let query = supabase
         .from('user_activity')
         .select('*', { count: 'exact' });
-
+  
       if (startDate) {
         query = query.gte('created_at', startDate.toISOString());
       }
       if (endDate) {
         query = query.lte('created_at', endDate.toISOString());
       }
-
+  
       const { data: activities, count } = await query;
-
+  
       const uniqueUsers = new Set(activities?.map(a => a.user_id) || []).size;
-      
-      const { data: allUsers } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact' });
-
+  
       // Group by selected period
       const visitsByPeriod = activities?.reduce((acc: any, activity) => {
         const date = new Date(activity.created_at);
         let key = '';
-
+  
         switch (groupBy) {
           case 'day':
             key = formatDate(date);
@@ -199,7 +201,7 @@ export default function Admin() {
             key = date.getFullYear().toString();
             break;
         }
-
+  
         if (!acc[key]) {
           acc[key] = { visits: 0, users: new Set() };
         }
@@ -207,7 +209,7 @@ export default function Admin() {
         acc[key].users.add(activity.user_id);
         return acc;
       }, {});
-
+  
       const visitsByDateArray = Object.entries(visitsByPeriod || {})
         .map(([date, data]: [string, any]) => ({
           date,
@@ -215,13 +217,13 @@ export default function Admin() {
           unique: data.users.size,
         }))
         .sort((a, b) => a.date.localeCompare(b.date));
-
-      setStats({
+  
+      setStats(prev => ({
+        ...prev,
         total_visits: count || 0,
         unique_users: uniqueUsers,
-        total_registered: allUsers?.count || 0,
         visits_by_date: visitsByDateArray,
-      });
+      }));
     } catch (error: any) {
       console.error('Error loading stats:', error);
       toast.error('Ошибка загрузки статистики');
