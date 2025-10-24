@@ -11,16 +11,16 @@ import { Calculator as CalcIcon, TrendingUp, TrendingDown } from 'lucide-react';
 export default function Calculator() {
   const [params, setParams] = useState({
     albumPrice: 500,
-    childrenCount: 100,
-    printCost: 150,
+    childrenCount: 1,
+    printCost: 100,
     fixedExpenses: 0,
     schoolPaymentType: 'percent' as 'percent' | 'fixed',
-    schoolPercent: 15,
+    schoolPercent: 0,
     schoolFixed: 0,
     photographerPaymentType: 'percent' as 'percent' | 'fixed',
-    photographerPercent: 25,
+    photographerPercent: 0,
     photographerFixed: 0,
-    taxBase: 'net_profit' as 'revenue' | 'net_profit',
+    taxBase: 'revenue' as 'revenue' | 'net_profit',
     taxPercent: 6,
   });
 
@@ -117,7 +117,7 @@ export default function Calculator() {
                 <Label className="mb-3 block">Откат школе</Label>
                 <RadioGroup
                   value={params.schoolPaymentType}
-                  onValueChange={(value) => handleInputChange('schoolPaymentType', value)}
+                  onValueChange={(value: 'percent' | 'fixed') => handleInputChange('schoolPaymentType', value)}
                   className="flex gap-4 mb-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -131,7 +131,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={(params.schoolPaymentType === 'percent' ? params.schoolPercent : params.schoolFixed) || ''}
+                  value={params.schoolPaymentType === 'percent' ? params.schoolPercent : params.schoolFixed}
                   onChange={(e) => handleInputChange(
                     params.schoolPaymentType === 'percent' ? 'schoolPercent' : 'schoolFixed',
                     e.target.value
@@ -146,7 +146,7 @@ export default function Calculator() {
                 <Label className="mb-3 block">Оплата фотографу</Label>
                 <RadioGroup
                   value={params.photographerPaymentType}
-                  onValueChange={(value) => handleInputChange('photographerPaymentType', value)}
+                  onValueChange={(value: 'percent' | 'fixed') => handleInputChange('photographerPaymentType', value)}
                   className="flex gap-4 mb-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -160,7 +160,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={(params.photographerPaymentType === 'percent' ? params.photographerPercent : params.photographerFixed) || ''}
+                  value={params.photographerPaymentType === 'percent' ? params.photographerPercent : params.photographerFixed}
                   onChange={(e) => handleInputChange(
                     params.photographerPaymentType === 'percent' ? 'photographerPercent' : 'photographerFixed',
                     e.target.value
@@ -176,7 +176,8 @@ export default function Calculator() {
               <Label className="mb-3 block">Налогооблагаемая база</Label>
               <RadioGroup
                 value={params.taxBase}
-                onValueChange={(value) => handleInputChange('taxBase', value)}
+                onValueChange={(value: 'revenue' | 'net_profit') => handleInputChange('taxBase', value)}
+                className="space-y-2"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="revenue" id="revenue" />
