@@ -9,10 +9,11 @@ import { useState } from 'react';
 
 interface DealFinancialInfoProps {
   deal: Deal;
+  defaultOpen?: boolean;
 }
 
-export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DealFinancialInfo({ deal, defaultOpen = false }: DealFinancialInfoProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   // Проверяем, есть ли все необходимые данные для расчета
   if (!deal.albumPrice || !deal.childrenCount) {
