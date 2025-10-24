@@ -39,7 +39,7 @@ export default function Admin() {
   const [stats, setStats] = useState<ActivityStats>({
     total_visits: 0,
     unique_users: 0,
-    total_registered: 0
+    total_registered: 0,
     visits_by_date: [],
   });
   const [dateFilter, setDateFilter] = useState<DateFilterType>({
