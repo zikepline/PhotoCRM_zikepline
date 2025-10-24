@@ -5,6 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:up": "node ./scripts/dev-up.mjs",
+    "dev:down": "supabase stop",
+    "db:start": "supabase start",
+    "db:status": "supabase status",
+    "db:reset": "supabase db reset --force",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
