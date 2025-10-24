@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from '@/lib/utils/calculations';
 import { Calendar, Tag, Phone, Mail, Link as LinkIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealDialog } from '@/components/deals/DealDialog';
+import { DealFinancialInfo } from '@/components/deals/DealFinancialInfo';
 
 interface KanbanCardProps {
   deal: Deal;
@@ -184,6 +185,10 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
               </div>
             )}
 
+            <div className="mb-4">
+              <DealFinancialInfo deal={deal} />
+            </div>
+            
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                 Закрыть
