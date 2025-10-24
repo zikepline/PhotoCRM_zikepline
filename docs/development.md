@@ -1,35 +1,44 @@
 # Руководство по разработке
 
-## Установка всего необходимого
-1) Node.js (LTS) и npm — Linux (через nvm):
-```bash
-curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-nvm install --lts
-node -v && npm -v
+## Установка всего необходимого (Windows, PowerShell)
+1) Node.js (LTS) и npm — через Winget (предпочтительно):
+```powershell
+winget install OpenJS.NodeJS.LTS
+# Перезапустите PowerShell, затем проверьте
+node -v; npm -v
 ```
+Альтернатива: установщик с сайта Node.js (LTS) — затем перезапустить терминал.
 
-2) Docker (для локального Supabase):
-```bash
-sudo apt-get update && sudo apt-get install -y docker.io docker-compose-plugin
-sudo usermod -aG docker "$USER" && newgrp docker
+2) Docker Desktop:
+```powershell
+winget install Docker.DockerDesktop
+# Запустите Docker Desktop вручную и дождитесь статуса "Docker is running"
 docker version
 ```
 
-3) Supabase CLI (Linux):
-```bash
-curl -fsSL https://cli.supabase.com/install/linux | sh
+3) Supabase CLI:
+```powershell
+# Вариант 1 (простой):
+npm i -g supabase
+
+# Вариант 2 (через Scoop):
+iwr -useb get.scoop.sh | iex
+scoop install supabase
+
+# Вариант 3 (через Chocolatey, PowerShell от Администратора):
+choco install supabase
+
+# Проверка
 supabase --version
 ```
-Альтернатива: `npm i -g supabase`.
 
 4) Установите зависимости проекта:
-```bash
+```powershell
 npm i
 ```
 
 ## Проверка установок
-```bash
+```powershell
 node -v            # >= 18
 npm -v
 docker version     # и Client, и Server доступны
@@ -40,7 +49,7 @@ supabase --version
 Есть два способа — один скрипт или по отдельности.
 
 ### Способ A (рекомендуется): один скрипт
-```bash
+```powershell
 npm run dev:up
 ```
 Скрипт:
@@ -52,7 +61,7 @@ npm run dev:up
 
 ### Способ B: по отдельности
 1) Запустите Supabase (бэкенд):
-```bash
+```powershell
 supabase start
 supabase status
 # Ожидаемые строки:
@@ -62,23 +71,32 @@ supabase status
 ```
 
 2) Создайте/обновите `.env.local` в корне проекта значениями из `supabase status`:
-```bash
-printf "VITE_SUPABASE_URL=http://localhost:54321\nVITE_SUPABASE_PUBLISHABLE_KEY=<anon-key>\n" > .env.local
+```powershell
+$envContent = @"
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=<anon-key>
+"@
+Set-Content -Path .\.env.local -Value $envContent -NoNewline:$false
+```
+Альтернатива (откроется Блокнот):
+```powershell
+notepad .\.env.local
+# Вставьте две строки из примера выше и сохраните файл
 ```
 
 3) Запустите фронтенд (Vite):
-```bash
+```powershell
 npm run dev
 # По умолчанию доступно на http://localhost:8080 (см. vite.config.ts)
 ```
 
 ## Быстрый старт (кратко)
-```bash
+```powershell
 npm i
 npm run dev:up  # Supabase + .env.local + Vite
 ```
 Альтернатива с облачным Supabase:
-```bash
+```powershell
 # .env.local
 VITE_SUPABASE_URL=https://<your-project-id>.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=<your-anon-key>
@@ -130,7 +148,8 @@ on conflict (user_id, role) do nothing;
 - Вспомогательное локальное хранилище (LocalStorage) реализовано в `src/lib/storage.ts` для демо‑режима некоторых сущностей.
 
 ## Частые проблемы
-- Supabase CLI не найден: установите CLI и проверьте `supabase --version`.
+- Supabase CLI не найден: установите CLI и проверьте `supabase --version` (перезапустите PowerShell для обновления PATH).
 - `dev:up` не смог распарсить `supabase status`: запустите `supabase start` вручную и заполните `.env.local`.
 - Порт 8080 занят: поменяйте `server.port` в `vite.config.ts` или запустите `vite --port 5173`.
+- Docker Desktop не запущен: откройте приложение и дождитесь "Docker is running".
 - RLS `permission denied`: убедитесь, что записываете `user_id = auth.uid()` и пользователь авторизован; для админ‑доступа добавьте роль.

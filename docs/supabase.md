@@ -1,7 +1,7 @@
 # Supabase: схема, RLS и запуск
 
-## Локальный запуск
-```bash
+## Локальный запуск (Windows, PowerShell)
+```powershell
 npm run db:start   # запустить локальные контейнеры Supabase
 npm run db:status  # проверить статус
 npm run db:reset   # пересоздать БД и применить миграции
