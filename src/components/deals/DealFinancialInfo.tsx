@@ -112,7 +112,7 @@ export function DealFinancialInfo({ deal }: DealFinancialInfoProps) {
 
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Режим налогообложения:</span>
-              <Badge variant="outline" className="text-xs border-amber-100 shadow-sm shadow-amber-100">
+              <Badge variant="secondary" className="text-xs bg-amber-50/50 text-amber-600">
                 {taxBaseLabel}
               </Badge>
             </div>
