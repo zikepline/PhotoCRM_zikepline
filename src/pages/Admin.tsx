@@ -25,6 +25,7 @@ interface UserInfo {
 interface ActivityStats {
   total_visits: number;
   unique_users: number;
+  total_registered: number;
   visits_by_date: { date: string; visits: number; unique: number }[];
 }
 
@@ -38,6 +39,7 @@ export default function Admin() {
   const [stats, setStats] = useState<ActivityStats>({
     total_visits: 0,
     unique_users: 0,
+    total_registered: 0
     visits_by_date: [],
   });
   const [dateFilter, setDateFilter] = useState<DateFilterType>({
@@ -171,6 +173,10 @@ export default function Admin() {
       const { data: activities, count } = await query;
 
       const uniqueUsers = new Set(activities?.map(a => a.user_id) || []).size;
+      
+      const { data: allUsers } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact' });
 
       // Group by selected period
       const visitsByPeriod = activities?.reduce((acc: any, activity) => {
@@ -213,6 +219,7 @@ export default function Admin() {
       setStats({
         total_visits: count || 0,
         unique_users: uniqueUsers,
+        total_registered: allUsers?.count || 0,
         visits_by_date: visitsByDateArray,
       });
     } catch (error: any) {
@@ -256,7 +263,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mb-8">
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
         <Card>
           <CardHeader>
             <CardTitle>Всего посещений</CardTitle>
@@ -278,7 +285,19 @@ export default function Admin() {
             </div>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Всего зарегистрировано</CardTitle>
+            <CardDescription>Все пользователи системы</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-green-600">{stats.total_registered}</div>
+          </CardContent>
+        </Card>
       </div>
+
+
 
       <Card className="mb-8">
         <CardHeader>
