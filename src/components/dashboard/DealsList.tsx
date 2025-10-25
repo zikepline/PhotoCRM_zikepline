@@ -6,7 +6,6 @@ import { formatCurrency, formatDate } from '@/lib/utils/calculations';
 import { Clock, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealDialog } from '@/components/deals/DealDialog';
-import { DealFinancialInfo } from '@/components/deals/DealFinancialInfo';
 import { getDeals } from '@/lib/storage';
 
 interface DealsListProps {
@@ -100,10 +99,7 @@ export function DealsList({ deals, title, onUpdate }: DealsListProps) {
                     ))}
                   </div>
                 )}
-
-                <div className="mt-3">
-                  <DealFinancialInfo deal={deal} defaultOpen={false} />
-                </div>
+                
               </div>
             ))
           )}
