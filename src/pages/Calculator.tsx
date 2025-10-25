@@ -323,16 +323,16 @@ export default function Calculator() {
                   <p>• Печать: {formatCurrency(result.totalPrintCost)}</p>
                   <p>• Расходы: {formatCurrency(result.fixedExpenses)}</p>
                   <p>• Школе: {formatCurrency(result.schoolPayment)}
-                    {result.schoolPaymentType === 'percent' && ` (${result.schoolPercent}%)`}
+                    {result.schoolPaymentType === 'percent' && result.schoolPercent && ` (${result.schoolPercent}%)`}
                   </p>
                   <p>• Фотографу: {formatCurrency(result.photographerPayment)}
-                    {result.photographerPaymentType === 'percent' && ` (${result.photographerPercent}%)`}
+                    {result.photographerPaymentType === 'percent' && result.photographerPercent && ` (${result.photographerPercent}%)`}
                   </p>
                   <p>• Ретушеру: {formatCurrency(result.retoucherPayment)}
-                    {result.retoucherPaymentType === 'percent' && ` (${result.retoucherPercent}%)`}
+                    {result.retoucherPaymentType === 'percent' && result.retoucherPercent && ` (${result.retoucherPercent}%)`}
                   </p>
                   <p>• Верстальщику: {formatCurrency(result.layoutPayment)}
-                    {result.layoutPaymentType === 'percent' && ` (${result.layoutPercent}%)`}
+                    {result.layoutPaymentType === 'percent' && result.layoutPercent && ` (${result.layoutPercent}%)`}
                   </p>
                 </div>
               </div>
