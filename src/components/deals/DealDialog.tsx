@@ -9,7 +9,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Deal, DealStatus, DealLink } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Calculator, ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DealFinancialInfo } from '@/components/deals/DealFinancialInfo';
+import { Card } from '@/components/ui/card';
 
 interface DealDialogProps {
   open: boolean;
@@ -31,6 +34,7 @@ const statusOptions: { value: DealStatus; label: string }[] = [
 ];
 
 export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogProps) {
+  const [isFinancialOpen, setIsFinancialOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Deal & { links: DealLink[] }>>({
     title: '',
     status: 'new',
@@ -297,121 +301,144 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
           </div>
 
           <div className="border-t pt-4">
-            <h3 className="font-semibold mb-4">Финансовые параметры</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="albumPrice">Стоимость альбома *</Label>
-                <Input
-                  id="albumPrice"
-                  type="number"
-                  value={formData.albumPrice || ''}
-                  onChange={(e) => setFormData({ ...formData, albumPrice: e.target.value ? parseFloat(e.target.value) : 0 })}
-                  onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="childrenCount">Количество детей *</Label>
-                <Input
-                  id="childrenCount"
-                  type="number"
-                  value={formData.childrenCount || ''}
-                  onChange={(e) => setFormData({ ...formData, childrenCount: e.target.value ? parseInt(e.target.value) : 0 })}
-                  onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="printCost">Печать за 1 шт. (₽)</Label>
-                <Input
-                  id="printCost"
-                  type="number"
-                  value={formData.printCost || ''}
-                  onChange={(e) => setFormData({ ...formData, printCost: e.target.value ? parseFloat(e.target.value) : 0 })}
-                  onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                  onWheel={(e) => e.currentTarget.blur()}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="fixedExpenses">Фикс. расходы (₽)</Label>
-                <Input
-                  id="fixedExpenses"
-                  type="number"
-                  value={formData.fixedExpenses || ''}
-                  onChange={(e) => setFormData({ ...formData, fixedExpenses: e.target.value ? parseFloat(e.target.value) : 0 })}
-                  onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                  onWheel={(e) => e.currentTarget.blur()}
-                />
-              </div>
-
-              <div className="col-span-2 space-y-3">
-                <div>
-                  <Label className="mb-2 block">Откат школе</Label>
-                  <RadioGroup
-                    value={formData.schoolPaymentType}
-                    onValueChange={(value) => setFormData({ ...formData, schoolPaymentType: value as 'percent' | 'fixed' })}
-                    className="flex gap-4 mb-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="percent" id="deal-school-percent" />
-                      <Label htmlFor="deal-school-percent" className="cursor-pointer">Процент</Label>
+            <Collapsible open={isFinancialOpen} onOpenChange={setIsFinancialOpen}>
+              <CollapsibleTrigger className="w-full">
+                <Card className="p-3 hover:bg-accent/50 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Calculator className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Финансовые параметры</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="fixed" id="deal-school-fixed" />
-                      <Label htmlFor="deal-school-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                    <ChevronDown
+                      className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                        isFinancialOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </div>
+                </Card>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="albumPrice">Стоимость альбома *</Label>
+                    <Input
+                      id="albumPrice"
+                      type="number"
+                      value={formData.albumPrice || ''}
+                      onChange={(e) => setFormData({ ...formData, albumPrice: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="childrenCount">Количество детей *</Label>
+                    <Input
+                      id="childrenCount"
+                      type="number"
+                      value={formData.childrenCount || ''}
+                      onChange={(e) => setFormData({ ...formData, childrenCount: e.target.value ? parseInt(e.target.value) : 0 })}
+                      onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="printCost">Печать за 1 шт. (₽)</Label>
+                    <Input
+                      id="printCost"
+                      type="number"
+                      value={formData.printCost || ''}
+                      onChange={(e) => setFormData({ ...formData, printCost: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="fixedExpenses">Фикс. расходы (₽)</Label>
+                    <Input
+                      id="fixedExpenses"
+                      type="number"
+                      value={formData.fixedExpenses || ''}
+                      onChange={(e) => setFormData({ ...formData, fixedExpenses: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
+                  </div>
+
+                  <div className="col-span-2 space-y-3">
+                    <div>
+                      <Label className="mb-2 block">Откат школе</Label>
+                      <RadioGroup
+                        value={formData.schoolPaymentType}
+                        onValueChange={(value) => setFormData({ ...formData, schoolPaymentType: value as 'percent' | 'fixed' })}
+                        className="flex gap-4 mb-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="percent" id="deal-school-percent" />
+                          <Label htmlFor="deal-school-percent" className="cursor-pointer">Процент</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="fixed" id="deal-school-fixed" />
+                          <Label htmlFor="deal-school-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                        </div>
+                      </RadioGroup>
+                      <Input
+                        type="number"
+                        value={(formData.schoolPaymentType === 'percent' ? formData.schoolPercent : formData.schoolFixed) || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          [formData.schoolPaymentType === 'percent' ? 'schoolPercent' : 'schoolFixed']: e.target.value ? parseFloat(e.target.value) : 0
+                        })}
+                        onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        placeholder={formData.schoolPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                      />
                     </div>
-                  </RadioGroup>
-                  <Input
-                    type="number"
-                    value={(formData.schoolPaymentType === 'percent' ? formData.schoolPercent : formData.schoolFixed) || ''}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      [formData.schoolPaymentType === 'percent' ? 'schoolPercent' : 'schoolFixed']: e.target.value ? parseFloat(e.target.value) : 0
-                    })}
-                    onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    placeholder={formData.schoolPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
-                  />
+
+                    <div>
+                      <Label className="mb-2 block">Оплата фотографу</Label>
+                      <RadioGroup
+                        value={formData.photographerPaymentType}
+                        onValueChange={(value) => setFormData({ ...formData, photographerPaymentType: value as 'percent' | 'fixed' })}
+                        className="flex gap-4 mb-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="percent" id="deal-photographer-percent" />
+                          <Label htmlFor="deal-photographer-percent" className="cursor-pointer">Процент</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="fixed" id="deal-photographer-fixed" />
+                          <Label htmlFor="deal-photographer-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                        </div>
+                      </RadioGroup>
+                      <Input
+                        type="number"
+                        value={(formData.photographerPaymentType === 'percent' ? formData.photographerPercent : formData.photographerFixed) || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          [formData.photographerPaymentType === 'percent' ? 'photographerPercent' : 'photographerFixed']: e.target.value ? parseFloat(e.target.value) : 0
+                        })}
+                        onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        placeholder={formData.photographerPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                      />
+                    </div>
+                  </div>
                 </div>
-
-                <div>
-                  <Label className="mb-2 block">Оплата фотографу</Label>
-                  <RadioGroup
-                    value={formData.photographerPaymentType}
-                    onValueChange={(value) => setFormData({ ...formData, photographerPaymentType: value as 'percent' | 'fixed' })}
-                    className="flex gap-4 mb-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="percent" id="deal-photographer-percent" />
-                      <Label htmlFor="deal-photographer-percent" className="cursor-pointer">Процент</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="fixed" id="deal-photographer-fixed" />
-                      <Label htmlFor="deal-photographer-fixed" className="cursor-pointer">Фикс. сумма</Label>
-                    </div>
-                  </RadioGroup>
-                  <Input
-                    type="number"
-                    value={(formData.photographerPaymentType === 'percent' ? formData.photographerPercent : formData.photographerFixed) || ''}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      [formData.photographerPaymentType === 'percent' ? 'photographerPercent' : 'photographerFixed']: e.target.value ? parseFloat(e.target.value) : 0
-                    })}
-                    onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    placeholder={formData.photographerPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
-                  />
-                </div>
-              </div>
-
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
+
+          {deal && (
+            <div className="border-t pt-4">
+              <DealFinancialInfo deal={deal} />
+            </div>
+          )}
 
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
