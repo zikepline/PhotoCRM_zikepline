@@ -319,7 +319,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
               </CollapsibleTrigger>
 
               <CollapsibleContent className="mt-2">
-                <Card className="p-4 space-y-3 bg-accent/20">
+                <Card className="p-4 space-y-3 bg-muted/80 transition-colors cursor-pointer">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="albumPrice">Стоимость альбома *</Label>
