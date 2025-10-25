@@ -20,6 +20,12 @@ export default function Calculator() {
     photographerPaymentType: 'percent' as 'percent' | 'fixed',
     photographerPercent: 0,
     photographerFixed: 0,
+    retoucherPaymentType: 'percent' as 'percent' | 'fixed',
+    retoucherPercent: 0,
+    retoucherFixed: 0,
+    layoutPaymentType: 'percent' as 'percent' | 'fixed',
+    layoutPercent: 0,
+    layoutFixed: 0,
     taxBase: 'revenue' as 'revenue' | 'net_profit',
     taxPercent: 6,
   });
@@ -42,6 +48,10 @@ export default function Calculator() {
       'schoolFixed',
       'photographerPercent',
       'photographerFixed',
+      'retoucherPercent',
+      'retoucherFixed',
+      'layoutPercent',
+      'layoutFixed',
       'taxPercent',
     ]);
 
@@ -192,6 +202,64 @@ export default function Calculator() {
                   placeholder={params.photographerPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
                 />
               </div>
+
+              <div>
+                <Label className="mb-3 block">Оплата ретушеру</Label>
+                <RadioGroup
+                  value={params.retoucherPaymentType}
+                  onValueChange={(value: 'percent' | 'fixed') => handleInputChange('retoucherPaymentType', value)}
+                  className="flex gap-4 mb-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="percent" id="retoucher-percent" />
+                    <Label htmlFor="retoucher-percent" className="cursor-pointer">Процент</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="fixed" id="retoucher-fixed" />
+                    <Label htmlFor="retoucher-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                  </div>
+                </RadioGroup>
+                <Input
+                  type="number"
+                  value={params.retoucherPaymentType === 'percent' ? params.retoucherPercent : params.retoucherFixed}
+                  onChange={(e) => handleInputChange(
+                    params.retoucherPaymentType === 'percent' ? 'retoucherPercent' : 'retoucherFixed',
+                    e.target.value
+                  )}
+                  onFocus={handleInputFocus}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  placeholder={params.retoucherPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                />
+              </div>
+
+              <div>
+                <Label className="mb-3 block">Оплата верстальщику</Label>
+                <RadioGroup
+                  value={params.layoutPaymentType}
+                  onValueChange={(value: 'percent' | 'fixed') => handleInputChange('layoutPaymentType', value)}
+                  className="flex gap-4 mb-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="percent" id="layout-percent" />
+                    <Label htmlFor="layout-percent" className="cursor-pointer">Процент</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="fixed" id="layout-fixed" />
+                    <Label htmlFor="layout-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                  </div>
+                </RadioGroup>
+                <Input
+                  type="number"
+                  value={params.layoutPaymentType === 'percent' ? params.layoutPercent : params.layoutFixed}
+                  onChange={(e) => handleInputChange(
+                    params.layoutPaymentType === 'percent' ? 'layoutPercent' : 'layoutFixed',
+                    e.target.value
+                  )}
+                  onFocus={handleInputFocus}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  placeholder={params.layoutPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                />
+              </div>
             </div>
 
             <div>
@@ -259,6 +327,12 @@ export default function Calculator() {
                   </p>
                   <p>• Фотографу: {formatCurrency(result.photographerPayment)}
                     {result.photographerPaymentType === 'percent' && ` (${result.photographerPercent}%)`}
+                  </p>
+                  <p>• Ретушеру: {formatCurrency(result.retoucherPayment)}
+                    {result.retoucherPaymentType === 'percent' && ` (${result.retoucherPercent}%)`}
+                  </p>
+                  <p>• Верстальщику: {formatCurrency(result.layoutPayment)}
+                    {result.layoutPaymentType === 'percent' && ` (${result.layoutPercent}%)`}
                   </p>
                 </div>
               </div>
