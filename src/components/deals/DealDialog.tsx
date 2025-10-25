@@ -303,7 +303,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
           <div className="border-t pt-4">
             <Collapsible open={isFinancialOpen} onOpenChange={setIsFinancialOpen}>
               <CollapsibleTrigger className="w-full">
-                <Card className="p-3 hover:bg-accent/50 transition-colors cursor-pointer">
+                <Card className="p-3 hover:bg-muted/80 transition-colors cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Calculator className="w-4 h-4 text-primary" />
