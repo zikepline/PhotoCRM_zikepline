@@ -351,7 +351,7 @@ export default function Calculator() {
                   <p className={`text-sm font-medium ${
                     result.grossProfit >= 0 ? 'text-success' : 'text-destructive'
                   }`}>
-                    Валовая прибыль (до налогообложения)
+                    Прибыль до налогообложения
                   </p>
                 </div>
                 <p className={`text-2xl font-semibold ${
@@ -382,7 +382,7 @@ export default function Calculator() {
                   ) : (
                     <TrendingDown className="w-6 h-6" />
                   )}
-                  <p className="text-lg font-medium">Чистая прибыль (после налогообложения)</p>
+                  <p className="text-lg font-medium">Чистая прибыль (с учетом налогообложения)</p>
                 </div>
                 <p className="text-4xl font-bold">{formatCurrency(result.netProfit)}</p>
                 <p className="text-sm opacity-90 mt-2">
