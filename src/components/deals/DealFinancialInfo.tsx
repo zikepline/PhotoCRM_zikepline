@@ -31,6 +31,12 @@ export function DealFinancialInfo({ deal, defaultOpen = false }: DealFinancialIn
     photographerPaymentType: deal.photographerPaymentType || 'percent',
     photographerPercent: deal.photographerPercent,
     photographerFixed: deal.photographerFixed,
+    retoucherPaymentType: deal.retoucherPaymentType || 'percent',
+    retoucherPercent: deal.retoucherPercent,
+    retoucherFixed: deal.retoucherFixed,
+    layoutPaymentType: deal.layoutPaymentType || 'percent',
+    layoutPercent: deal.layoutPercent,
+    layoutFixed: deal.layoutFixed,
     taxBase: deal.taxBase || 'net_profit',
     taxPercent: deal.taxPercent || 6,
   });
