@@ -53,6 +53,12 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
     photographerPaymentType: 'percent',
     photographerPercent: 0,
     photographerFixed: 0,
+    retoucherPaymentType: 'percent',
+    retoucherPercent: 0,
+    retoucherFixed: 0,
+    layoutPaymentType: 'percent',
+    layoutPercent: 0,
+    layoutFixed: 0,
   });
 
   useEffect(() => {
@@ -90,6 +96,12 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
           photographerPaymentType: 'percent',
           photographerPercent: 0,
           photographerFixed: 0,
+          retoucherPaymentType: 'percent',
+          retoucherPercent: 0,
+          retoucherFixed: 0,
+          layoutPaymentType: 'percent',
+          layoutPercent: 0,
+          layoutFixed: 0,
         });
       }
     };
@@ -159,6 +171,12 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
         photographer_payment_type: formData.photographerPaymentType,
         photographer_percent: formData.photographerPercent,
         photographer_fixed: formData.photographerFixed,
+        retoucher_payment_type: formData.retoucherPaymentType,
+        retoucher_percent: formData.retoucherPercent,
+        retoucher_fixed: formData.retoucherFixed,
+        layout_payment_type: formData.layoutPaymentType,
+        layout_percent: formData.layoutPercent,
+        layout_fixed: formData.layoutFixed,
         tax_base: profile?.tax_base || 'net_profit',
         tax_percent: profile?.tax_rate || 6,
         user_id: user.id,
@@ -427,6 +445,64 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
                           onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
                           onWheel={(e) => e.currentTarget.blur()}
                           placeholder={formData.photographerPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="mb-2 block">Оплата ретушеру</Label>
+                        <RadioGroup
+                          value={formData.retoucherPaymentType}
+                          onValueChange={(value) => setFormData({ ...formData, retoucherPaymentType: value as 'percent' | 'fixed' })}
+                          className="flex gap-4 mb-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="percent" id="deal-retoucher-percent" />
+                            <Label htmlFor="deal-retoucher-percent" className="cursor-pointer">Процент</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="fixed" id="deal-retoucher-fixed" />
+                            <Label htmlFor="deal-retoucher-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                          </div>
+                        </RadioGroup>
+                        <Input
+                          type="number"
+                          value={(formData.retoucherPaymentType === 'percent' ? formData.retoucherPercent : formData.retoucherFixed) || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            [formData.retoucherPaymentType === 'percent' ? 'retoucherPercent' : 'retoucherFixed']: e.target.value ? parseFloat(e.target.value) : 0
+                          })}
+                          onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          placeholder={formData.retoucherPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="mb-2 block">Оплата верстальщику</Label>
+                        <RadioGroup
+                          value={formData.layoutPaymentType}
+                          onValueChange={(value) => setFormData({ ...formData, layoutPaymentType: value as 'percent' | 'fixed' })}
+                          className="flex gap-4 mb-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="percent" id="deal-layout-percent" />
+                            <Label htmlFor="deal-layout-percent" className="cursor-pointer">Процент</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="fixed" id="deal-layout-fixed" />
+                            <Label htmlFor="deal-layout-fixed" className="cursor-pointer">Фикс. сумма</Label>
+                          </div>
+                        </RadioGroup>
+                        <Input
+                          type="number"
+                          value={(formData.layoutPaymentType === 'percent' ? formData.layoutPercent : formData.layoutFixed) || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            [formData.layoutPaymentType === 'percent' ? 'layoutPercent' : 'layoutFixed']: e.target.value ? parseFloat(e.target.value) : 0
+                          })}
+                          onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
+                          onWheel={(e) => e.currentTarget.blur()}
+                          placeholder={formData.layoutPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
                         />
                       </div>
                     </div>
