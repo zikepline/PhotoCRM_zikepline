@@ -170,7 +170,7 @@ export default function Calculator() {
                   )}
                   onFocus={handleInputFocus}
                   onWheel={(e) => e.currentTarget.blur()}
-                  placeholder={params.schoolPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                  placeholder={params.schoolPaymentType === 'percent' ? 'Введите процент' : 'Введите сумму в рублях'}
                 />
               </div>
 
@@ -199,7 +199,7 @@ export default function Calculator() {
                   )}
                   onFocus={handleInputFocus}
                   onWheel={(e) => e.currentTarget.blur()}
-                  placeholder={params.photographerPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                  placeholder={params.photographerPaymentType === 'percent' ? 'Введите процент' : 'Введите сумму в рублях'}
                 />
               </div>
 
@@ -228,7 +228,7 @@ export default function Calculator() {
                   )}
                   onFocus={handleInputFocus}
                   onWheel={(e) => e.currentTarget.blur()}
-                  placeholder={params.retoucherPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                  placeholder={params.retoucherPaymentType === 'percent' ? 'Введите процент' : 'Введите сумму в рублях'}
                 />
               </div>
 
@@ -257,7 +257,7 @@ export default function Calculator() {
                   )}
                   onFocus={handleInputFocus}
                   onWheel={(e) => e.currentTarget.blur()}
-                  placeholder={params.layoutPaymentType === 'percent' ? 'Процент' : 'Сумма в рублях'}
+                  placeholder={params.layoutPaymentType === 'percent' ? 'Введите процент' : 'Введите сумму в рублях'}
                 />
               </div>
             </div>
@@ -351,7 +351,7 @@ export default function Calculator() {
                   <p className={`text-sm font-medium ${
                     result.grossProfit >= 0 ? 'text-success' : 'text-destructive'
                   }`}>
-                    Валовая прибыль
+                    Валовая прибыль (до налогообложения)
                   </p>
                 </div>
                 <p className={`text-2xl font-semibold ${
@@ -382,7 +382,7 @@ export default function Calculator() {
                   ) : (
                     <TrendingDown className="w-6 h-6" />
                   )}
-                  <p className="text-lg font-medium">Чистая прибыль</p>
+                  <p className="text-lg font-medium">Чистая прибыль (после налогообложения)</p>
                 </div>
                 <p className="text-4xl font-bold">{formatCurrency(result.netProfit)}</p>
                 <p className="text-sm opacity-90 mt-2">
