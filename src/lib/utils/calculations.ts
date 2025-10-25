@@ -1,6 +1,6 @@
 import { TaxCalculation, Deal, DateFilter } from '@/types/crm';
 
-export const calculateTax = (params: Omit<TaxCalculation, 'totalRevenue' | 'totalCosts' | 'totalPrintCost' | 'grossProfit' | 'netProfit' | 'taxAmount' | 'schoolPayment' | 'photographerPayment'>): TaxCalculation => {
+export const calculateTax = (params: Omit<TaxCalculation, 'totalRevenue' | 'totalCosts' | 'totalPrintCost' | 'grossProfit' | 'netProfit' | 'taxAmount' | 'schoolPayment' | 'photographerPayment' | 'retoucherPayment' | 'layoutPayment'>): TaxCalculation => {
   const {
     albumPrice,
     childrenCount,
@@ -12,6 +12,12 @@ export const calculateTax = (params: Omit<TaxCalculation, 'totalRevenue' | 'tota
     photographerPaymentType,
     photographerPercent,
     photographerFixed,
+    retoucherPaymentType,
+    retoucherPercent,
+    retoucherFixed,
+    layoutPaymentType,
+    layoutPercent,
+    layoutFixed,
     taxBase,
     taxPercent,
   } = params;
@@ -35,7 +41,23 @@ export const calculateTax = (params: Omit<TaxCalculation, 'totalRevenue' | 'tota
     photographerPayment = photographerFixed || 0;
   }
   
-  const totalCosts = totalPrintCost + fixedExpenses + schoolPayment + photographerPayment;
+  // Расчет оплаты ретушеру
+  let retoucherPayment = 0;
+  if (retoucherPaymentType === 'percent') {
+    retoucherPayment = (totalRevenue * (retoucherPercent || 0)) / 100;
+  } else {
+    retoucherPayment = retoucherFixed || 0;
+  }
+  
+  // Расчет оплаты верстальщику
+  let layoutPayment = 0;
+  if (layoutPaymentType === 'percent') {
+    layoutPayment = (totalRevenue * (layoutPercent || 0)) / 100;
+  } else {
+    layoutPayment = layoutFixed || 0;
+  }
+  
+  const totalCosts = totalPrintCost + fixedExpenses + schoolPayment + photographerPayment + retoucherPayment + layoutPayment;
   const grossProfit = totalRevenue - totalCosts;
 
   const taxableBase = taxBase === 'revenue' ? totalRevenue : grossProfit;
@@ -53,6 +75,8 @@ export const calculateTax = (params: Omit<TaxCalculation, 'totalRevenue' | 'tota
     taxAmount,
     schoolPayment,
     photographerPayment,
+    retoucherPayment,
+    layoutPayment,
   };
 };
 
@@ -128,7 +152,29 @@ export const calculateStatistics = (deals: Deal[]) => {
       photographerPayment = (revenue * deal.photographerPercent) / 100;
     }
     
-    const totalCosts = totalPrintCost + (deal.fixedExpenses || 0) + schoolPayment + photographerPayment;
+    // Расчет оплаты ретушеру
+    let retoucherPayment = 0;
+    if (deal.retoucherPaymentType === 'percent') {
+      retoucherPayment = (revenue * (deal.retoucherPercent || 0)) / 100;
+    } else if (deal.retoucherPaymentType === 'fixed') {
+      retoucherPayment = deal.retoucherFixed || 0;
+    } else if (deal.retoucherPercent) {
+      // Для старых записей без типа
+      retoucherPayment = (revenue * deal.retoucherPercent) / 100;
+    }
+    
+    // Расчет оплаты верстальщику
+    let layoutPayment = 0;
+    if (deal.layoutPaymentType === 'percent') {
+      layoutPayment = (revenue * (deal.layoutPercent || 0)) / 100;
+    } else if (deal.layoutPaymentType === 'fixed') {
+      layoutPayment = deal.layoutFixed || 0;
+    } else if (deal.layoutPercent) {
+      // Для старых записей без типа
+      layoutPayment = (revenue * deal.layoutPercent) / 100;
+    }
+    
+    const totalCosts = totalPrintCost + (deal.fixedExpenses || 0) + schoolPayment + photographerPayment + retoucherPayment + layoutPayment;
     const grossProfit = revenue - totalCosts;
     
     // Расчет налога в зависимости от налогооблагаемой базы
