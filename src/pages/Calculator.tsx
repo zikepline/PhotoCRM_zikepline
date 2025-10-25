@@ -15,17 +15,17 @@ export default function Calculator() {
     printCost: 100,
     fixedExpenses: 0,
     schoolPaymentType: 'percent' as 'percent' | 'fixed',
-    schoolPercent: 0,
-    schoolFixed: 0,
+    schoolPercent: undefined,
+    schoolFixed: undefined,
     photographerPaymentType: 'percent' as 'percent' | 'fixed',
-    photographerPercent: 0,
-    photographerFixed: 0,
+    photographerPercent: undefined,
+    photographerFixed: undefined,
     retoucherPaymentType: 'percent' as 'percent' | 'fixed',
-    retoucherPercent: 0,
-    retoucherFixed: 0,
+    retoucherPercent: undefined,
+    retoucherFixed: undefined,
     layoutPaymentType: 'percent' as 'percent' | 'fixed',
-    layoutPercent: 0,
-    layoutFixed: 0,
+    layoutPercent: undefined,
+    layoutFixed: undefined,
     taxBase: 'revenue' as 'revenue' | 'net_profit',
     taxPercent: 6,
   });
@@ -163,7 +163,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={params.schoolPaymentType === 'percent' ? params.schoolPercent : params.schoolFixed}
+                  value={params.schoolPaymentType === 'percent' ? (params.schoolPercent ?? '') : (params.schoolFixed ?? '')}
                   onChange={(e) => handleInputChange(
                     params.schoolPaymentType === 'percent' ? 'schoolPercent' : 'schoolFixed',
                     e.target.value
@@ -192,7 +192,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={params.photographerPaymentType === 'percent' ? params.photographerPercent : params.photographerFixed}
+                  value={params.photographerPaymentType === 'percent' ? (params.photographerPercent ?? '') : (params.photographerFixed ?? '')}
                   onChange={(e) => handleInputChange(
                     params.photographerPaymentType === 'percent' ? 'photographerPercent' : 'photographerFixed',
                     e.target.value
@@ -221,7 +221,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={params.retoucherPaymentType === 'percent' ? params.retoucherPercent : params.retoucherFixed}
+                  value={params.retoucherPaymentType === 'percent' ? (params.retoucherPercent ?? '') : (params.retoucherFixed ?? '')}
                   onChange={(e) => handleInputChange(
                     params.retoucherPaymentType === 'percent' ? 'retoucherPercent' : 'retoucherFixed',
                     e.target.value
@@ -250,7 +250,7 @@ export default function Calculator() {
                 </RadioGroup>
                 <Input
                   type="number"
-                  value={params.layoutPaymentType === 'percent' ? params.layoutPercent : params.layoutFixed}
+                  value={params.layoutPaymentType === 'percent' ? (params.layoutPercent ?? '') : (params.layoutFixed ?? '')}
                   onChange={(e) => handleInputChange(
                     params.layoutPaymentType === 'percent' ? 'layoutPercent' : 'layoutFixed',
                     e.target.value
