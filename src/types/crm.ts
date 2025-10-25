@@ -37,6 +37,12 @@ export interface Deal {
   photographerPaymentType?: 'percent' | 'fixed';
   photographerPercent?: number;
   photographerFixed?: number;
+  retoucherPaymentType?: 'percent' | 'fixed';
+  retoucherPercent?: number;
+  retoucherFixed?: number;
+  layoutPaymentType?: 'percent' | 'fixed';
+  layoutPercent?: number;
+  layoutFixed?: number;
   taxBase?: 'revenue' | 'net_profit';
   taxPercent?: number; // налог всегда в процентах
 }
@@ -121,6 +127,12 @@ export interface TaxCalculation {
   photographerPaymentType: 'percent' | 'fixed';
   photographerPercent?: number;
   photographerFixed?: number;
+  retoucherPaymentType: 'percent' | 'fixed';
+  retoucherPercent?: number;
+  retoucherFixed?: number;
+  layoutPaymentType: 'percent' | 'fixed';
+  layoutPercent?: number;
+  layoutFixed?: number;
   taxBase: 'revenue' | 'net_profit';
   taxPercent: number; // всегда процент
   totalRevenue: number;
@@ -131,4 +143,6 @@ export interface TaxCalculation {
   taxAmount: number;
   schoolPayment: number;
   photographerPayment: number;
+  retoucherPayment: number;
+  layoutPayment: number;
 }
