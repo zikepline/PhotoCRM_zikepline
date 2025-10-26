@@ -49,7 +49,14 @@ export default function Profile() {
 
       setUser(user);
       setEmail(user.email || '');
+      
+      // Устанавливаем значения по умолчанию сразу
+      setName(user.user_metadata?.name || '');
+      setTaxRate('6');
+      setTaxBase('net_profit');
+      setLoading(false); // Показываем интерфейс сразу
 
+      // Загружаем профиль в фоне
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -57,7 +64,7 @@ export default function Profile() {
         .single();
 
       if (profile) {
-        setName(profile.name || '');
+        setName(profile.name || user.user_metadata?.name || '');
         setTaxRate(profile.tax_rate?.toString() || '6');
         setTaxBase((profile.tax_base as 'net_profit' | 'revenue') || 'net_profit');
         setAvatarUrl(profile.avatar_url);
@@ -69,7 +76,6 @@ export default function Profile() {
     } catch (error: any) {
       console.error('Error loading profile:', error);
       toast.error('Ошибка загрузки профиля');
-    } finally {
       setLoading(false);
     }
   };
