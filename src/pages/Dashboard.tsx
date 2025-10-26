@@ -6,10 +6,21 @@ import { DealDialog } from '@/components/deals/DealDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateStatistics, formatCurrency, filterDealsByDate } from '@/lib/utils/calculations';
 import { Deal, DateFilter as DateFilterType } from '@/types/crm';
-import { TrendingUp, CircleDollarSign, ShoppingBag, Receipt, ListChecks, CheckCircle2, XCircle } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Receipt, ListChecks, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Иконка рубля в круге
+const CircleRubleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M8 16V8h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
+    <path d="M8 12h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
+    <path d="M6 8h8"/>
+    <path d="M6 16h8"/>
+  </svg>
+);
 
 export default function Dashboard() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -144,7 +155,7 @@ export default function Dashboard() {
         <StatCard
           title="Общая выручка (за период)"
           value={formatCurrency(filteredStats.totalRevenue)}
-          icon={CircleDollarSign}
+          icon={CircleRubleIcon}
           variant="success"
         />
         <StatCard
