@@ -110,17 +110,18 @@ npm list --depth=0
 
 После успешной установки всех компонентов:
 
-# Автоматический запуск
+### Автоматический запуск
 ```powershell
 npm run dev:up
 ```
 
-# Или ручной запуск
+### Или ручной запуск
 ```powershell
+Запуск backend
 supabase start
 ```
 
-Переменные окружения
+### Переменные окружения
 
 Создайте файл `.env.local` в корне проекта:
 ```
@@ -131,6 +132,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
 **Получить ключи**: `supabase status`
 
 ```powershell
+Запуск fronted
 npm run dev
 ```
 
