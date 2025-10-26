@@ -113,7 +113,7 @@ export function Sidebar() {
       collapsed ? "w-20" : "w-64"
     )}>
       <div className="p-4 border-b border-sidebar-border flex items-center justify-start">
-        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center px-3">
+        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center px-3 ml-3">
           <span className="flex-shrink-0">P</span>
           {showText && !collapsed && (
             <span className="transition-opacity duration-200">
