@@ -14,8 +14,8 @@ import { cn } from '@/lib/utils';
 
 // Простая и красивая иконка рубля в круге (используем текст с кругом)
 const CircleRubleIcon = ({ className }: { className?: string }) => (
-  <div className={cn("rounded-full border-2 border-current flex items-center justify-center", className)} style={{ aspectRatio: '1', width: '1.5em', height: '1.5em' }}>
-    <span style={{ fontWeight: 'bold', fontSize: '0.8em' }}>₽</span>
+  <div className={cn("rounded-full border-2 border-current flex items-center justify-center w-8 h-8", className)}>
+    <span className="font-bold text-base">₽</span>
   </div>
 );
 
@@ -164,7 +164,7 @@ export default function Dashboard() {
         <StatCard
           title="Налоги (за период)"
           value={formatCurrency(filteredStats.totalTax)}
-          icon={Receipt}
+          icon={CircleRubleIcon}
           variant="warning"
         />
       </div>
