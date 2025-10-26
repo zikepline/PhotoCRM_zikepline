@@ -45,41 +45,33 @@ export default function Tasks() {
         .from('tasks')
         .select('*')
         .order('created_at', { ascending: false });
-
+  
       if (error) throw error;
-
-      const formattedTasks: Task[] = (data || []).map((t: any) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        dueDate: t.due_date ? new Date(t.due_date) : undefined,
-        completed: t.completed || false,
-        responsibleId: t.user_id,
-        dealId: t.deal_id,
-        contactId: t.contact_id,
-        companyId: t.company_id,
-        createdAt: new Date(t.created_at),
-        updatedAt: new Date(t.updated_at),
-      }));
-
-      // Сортируем задачи: сначала по дате выполнения (ближайшие сверху), затем по дате создания
-      const sortedTasks = formattedTasks.sort((a, b) => {
-        // Сначала сортируем по дате выполнения (ближайшие сверху)
-        if (a.dueDate && b.dueDate) {
-          const dueComparison = a.dueDate.getTime() - b.dueDate.getTime();
-          if (dueComparison !== 0) return dueComparison;
+  
+      const formattedTasks: Task[] = (data || []).map((t: any) => {
+        // Исправляем проблему с часовыми поясами для dueDate
+        let dueDate = undefined;
+        if (t.due_date) {
+          const [year, month, day] = t.due_date.split('T')[0].split('-').map(Number);
+          dueDate = new Date(year, month - 1, day);
         }
-        
-        // Если одна задача имеет дату выполнения, а другая нет - задача с датой идет выше
-        if (a.dueDate && !b.dueDate) return -1;
-        if (!a.dueDate && b.dueDate) return 1;
-        
-        // Если обе задачи без даты выполнения или даты одинаковые, сортируем по дате создания (свежие сверху)
-        return b.createdAt.getTime() - a.createdAt.getTime();
+  
+        return {
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          dueDate: dueDate,
+          completed: t.completed || false,
+          responsibleId: t.user_id,
+          dealId: t.deal_id,
+          contactId: t.contact_id,
+          companyId: t.company_id,
+          createdAt: new Date(t.created_at),
+          updatedAt: new Date(t.updated_at),
+        };
       });
-
-      setTasks(sortedTasks);
-      setFilteredTasks(sortedTasks);
+  
+      // ... остальной код сортировки
     } catch (error: any) {
       toast.error(error.message || 'Ошибка загрузки задач');
     }
@@ -275,7 +267,9 @@ export default function Tasks() {
   // Обработчик выбора даты в форме
   const handleFormDateSelect = (date: Date | undefined) => {
     if (date) {
-      setFormData({ ...formData, dueDate: date.toISOString().split('T')[0] });
+      // Создаем дату в локальном часовом поясе без времени
+      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      setFormData({ ...formData, dueDate: localDate.toISOString().split('T')[0] });
     } else {
       setFormData({ ...formData, dueDate: '' });
     }
@@ -285,7 +279,11 @@ export default function Tasks() {
   // Получить отформатированную дату для отображения
   const getFormattedDate = (dateString: string) => {
     if (!dateString) return 'Выберите дату';
-    const date = new Date(dateString);
+    
+    // Создаем дату в локальном часовом поясе
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    
     return date.toLocaleDateString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
@@ -420,55 +418,19 @@ export default function Tasks() {
                       day_hidden: "invisible",
                     }}
                     modifiers={{
-                      hasTasks: (date) => getTaskCountForDate(date) > 0,
-                      mixedAll: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasOverdue && hasCompleted && hasPending;
-                      },
-                      overdueCompleted: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasOverdue && hasCompleted && !hasPending;
-                      },
-                      overduePending: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasOverdue && hasPending && !hasCompleted;
-                      },
-                      completedPending: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasCompleted && hasPending && !hasOverdue;
-                      },
                       overdue: (date) => {
                         const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasOverdue && !hasCompleted && !hasPending;
+                        return tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
                       },
                       completed: (date) => {
                         const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasCompleted && !hasOverdue && !hasPending;
+                        return tasksOnDate.length > 0 && tasksOnDate.every(task => task.completed);
                       },
                       pending: (date) => {
                         const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasPending && !hasOverdue && !hasCompleted;
+                        return tasksOnDate.length > 0 && 
+                               !tasksOnDate.some(task => isOverdue(task.dueDate!, task.id)) &&
+                               tasksOnDate.some(task => !task.completed);
                       },
                     }}
                     modifiersClassNames={{
@@ -476,10 +438,6 @@ export default function Tasks() {
                       overdue: "bg-red-600 text-white font-bold shadow-lg",
                       completed: "bg-green-600 text-white font-medium shadow-lg",
                       pending: "bg-blue-600 text-white font-medium shadow-lg",
-                      overdueCompleted: "bg-gradient-to-r from-red-600 via-red-600 50% to-green-600 50% text-white font-bold shadow-lg",
-                      overduePending: "bg-gradient-to-r from-red-600 via-red-600 50% to-blue-600 50% text-white font-bold shadow-lg",
-                      completedPending: "bg-gradient-to-r from-green-600 via-green-600 50% to-blue-600 50% text-white font-medium shadow-lg",
-                      mixedAll: "bg-[conic-gradient(from_0deg,red_0deg_120deg,green_120deg_240deg,blue_240deg_360deg)] text-white font-bold shadow-lg",
                     }}
                   />
                 </Card>
