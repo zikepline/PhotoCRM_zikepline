@@ -143,6 +143,7 @@ export default function Tasks() {
         description: formData.description || null,
         due_date: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
         completed: formData.completed,
+        user_id: (await supabase.auth.getUser()).data.user?.id,
       };
 
       if (selectedTask) {
