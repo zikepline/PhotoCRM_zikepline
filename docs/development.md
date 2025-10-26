@@ -1,7 +1,6 @@
-# Руководство по разработке
+# Руководство по разработке PhotoCRM
 
-## Winget (что это и нужно ли его ставить)
-Winget — это менеджер пакетов Windows (Windows Package Manager). В Windows 11 и большинстве актуальных версий Windows 10 он уже предустановлен как компонент «App Installer».
+## Системные требования
 
 - Как проверить наличие: выполните в PowerShell
 ```powershell
@@ -9,158 +8,228 @@ winget --version
 ```
 Если команда не найдена — установите «App Installer» из Microsoft Store и перезапустите PowerShell. При отсутствии Winget можно использовать альтернативы (ручные инсталляторы, Chocolatey, Scoop), но шаги ниже предполагают наличие Winget.
 
-## Установка всего необходимого (Windows, PowerShell)
-1) Node.js (LTS) и npm — через Winget (предпочтительно):
+## Установка зависимостей
+
+### 1. Node.js и npm
 ```powershell
+# Через winget (рекомендуется)
 winget install OpenJS.NodeJS.LTS
-# Перезапустите PowerShell, затем проверьте
-node -v; npm -v
-```
-Альтернатива: установщик с сайта Node.js (LTS) — затем перезапустить терминал.
-
-2) Docker Desktop:
-```powershell
-winget install Docker.DockerDesktop
-# Запустите Docker Desktop вручную и дождитесь статуса "Docker is running"
-docker version
-```
-
-3) Supabase CLI:
-```powershell
-# Вариант 1 (простой):
-npm i -g supabase
-
-# Вариант 2 (через Scoop):
-iwr -useb get.scoop.sh | iex
-scoop install supabase
-
-# Вариант 3 (через Chocolatey, PowerShell от Администратора):
-choco install supabase
 
 # Проверка
-supabase --version
-```
-
-4) Установите зависимости проекта:
-```powershell
-npm i
-```
-
-## Проверка установок
-```powershell
-node -v            # >= 18
+node -v  # >= 18
 npm -v
-docker version     # и Client, и Server доступны
-supabase --version
 ```
 
-## Запуск бэкенда (Supabase) и фронтенда
-Есть два способа — один скрипт или по отдельности.
+### 2. Docker Desktop
+```powershell
+# Через winget
+winget install Docker.DockerDesktop
 
-### Способ A (рекомендуется): один скрипт
+# Или скачайте с https://www.docker.com/products/docker-desktop/
+# Запустите Docker Desktop и дождитесь статуса "Docker is running"
+docker --version
+```
+
+### 3. Supabase CLI
+
+**Способ 1: Скачивание вручную (рекомендуется)**
+1. Перейдите на https://github.com/supabase/cli/releases
+2. Скачайте `supabase_windows_amd64.tar.gz`
+3. Распакуйте в папку `C:\supabase\`
+4. Добавьте `C:\supabase\` в переменную PATH:
+   ```powershell
+   setx PATH "%PATH%;C:\supabase"
+   ```
+5. Перезапустите терминал и проверьте:
+   ```powershell
+   supabase --version
+   ```
+
+**Способ 2: Через Chocolatey (если установлен)**
+```powershell
+choco install supabase
+```
+
+**Способ 3: Через Scoop (если установлен)**
+```powershell
+scoop install supabase
+```
+
+### 4. Установка зависимостей проекта
+```powershell
+# Перейдите в папку проекта
+cd "путь\к\проекту\PhotoCRM_zikepline"
+
+# Установите зависимости
+npm install
+```
+
+## Запуск проекта
+
+### Способ 1: Автоматический запуск (рекомендуется)
 ```powershell
 npm run dev:up
 ```
-Скрипт:
-- запустит локальный Supabase (`supabase start`),
-- распарсит `supabase status` и заполнит `.env.local` переменными `VITE_SUPABASE_URL` и `VITE_SUPABASE_PUBLISHABLE_KEY`,
-- запустит Vite Dev Server.
+Этот скрипт:
+- Запустит локальный Supabase
+- Создаст/обновит `.env.local` с правильными ключами
+- Запустит Vite dev-сервер
 
-Остановить Supabase: `npm run dev:down` (или `supabase stop`).
+### Способ 2: Ручной запуск
 
-Это безопасно: данные локальной БД сохранятся. Таблицы/данные удаляются только при явном сбросе (`npm run db:reset` / `supabase db reset`) или ручном удалении Docker volumes.
-
-### Способ B: по отдельности
-1) Запустите Supabase (бэкенд):
+**Шаг 1: Запустите Supabase**
 ```powershell
 supabase start
+```
+
+**Шаг 2: Проверьте статус и скопируйте ключи**
+```powershell
 supabase status
-# Ожидаемые строки:
-# API URL: http://localhost:54321
-# Studio URL: http://localhost:54323
-# anon key: <ключ>
+# Скопируйте API URL и Publishable key из вывода
 ```
 
-2) Создайте/обновите `.env.local` в корне проекта значениями из `supabase status`:
+**Шаг 3: Создайте .env.local**
+Создайте файл `.env.local` в корне проекта через блокнот:
+```
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS
+```
+
+**Шаг 4: Запустите Vite**
 ```powershell
+npm run dev
+```
+
+### Способ 3: Через PowerShell (создание .env.local)
+```powershell
+# После запуска supabase start
 $envContent = @"
-VITE_SUPABASE_URL=http://localhost:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=<anon-key>
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
 "@
-Set-Content -Path .\.env.local -Value $envContent -NoNewline:$false
-```
-Альтернатива (откроется Блокнот):
-```powershell
-notepad .\.env.local
-# Вставьте две строки из примера выше и сохраните файл
+Set-Content -Path .\.env.local -Value $envContent -Encoding utf8
 ```
 
-3) Запустите фронтенд (Vite):
+## Проверка работоспособности
+
+1. **Откройте браузер**: http://localhost:8080
+2. **Должна открыться страница входа** (`/auth`)
+3. **Зарегистрируйте нового пользователя** (email/пароль)
+4. **После входа** вы попадете на панель управления
+5. **Откройте Supabase Studio**: http://localhost:54323
+   - Table editor → `public.profiles` — должна появиться запись пользователя
+   - Создайте тестовый заказ через UI и проверьте таблицу `public.deals`
+
+## Полезные команды
+
 ```powershell
-npm run dev
-# По умолчанию доступно на http://localhost:8080 (см. vite.config.ts)
+# Разработка
+npm run dev              # Запуск Vite dev-сервера
+npm run dev:up          # Автоматический запуск (Supabase + Vite)
+npm run dev:down        # Остановка Supabase
+
+# База данных
+npm run db:start        # Запуск Supabase
+npm run db:status       # Статус Supabase
+npm run db:reset        # Сброс БД и применение миграций
+
+# Сборка
+npm run build           # Продакшн сборка
+npm run build:dev       # Dev сборка
+npm run preview         # Предпросмотр сборки
+npm run lint            # Линтинг кода
 ```
 
-## Быстрый старт (кратко)
-```powershell
-npm i
-npm run dev:up  # Supabase + .env.local + Vite
-```
-Альтернатива с облачным Supabase:
-```powershell
-# .env.local
-VITE_SUPABASE_URL=https://<your-project-id>.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<your-anon-key>
+## Доступ к админ-панели
 
-npm run dev
-```
+Для доступа к админ-панели (`/admin`) добавьте себе роль администратора:
 
-## Проверка работоспособности (чек‑лист)
-- Откройте `http://localhost:8080` — должна открыться страница входа (`/auth`).
-- Зарегистрируйте нового пользователя (email/пароль). После входа вы попадёте на панель.
-- Откройте Studio: `http://localhost:54323` → Table editor → `public.profiles` — должна появиться запись вашего пользователя (создаётся триггером).
-- Создайте тестовый заказ через UI — в Studio проверьте таблицу `public.deals`.
-- Для доступа к админке добавьте себе роль (в Studio → SQL Editor):
+1. Откройте Supabase Studio: http://localhost:54323
+2. Перейдите в SQL Editor
+3. Выполните запрос:
 ```sql
 insert into public.user_roles (user_id, role)
 values ('<ваш_user_id>', 'admin')
 on conflict (user_id, role) do nothing;
 ```
-- Перейдите на `/admin` — доступен при роли `admin`.
 
-## Скрипты
-- `dev` — Vite Dev Server
-- `dev:up` — старт локального Supabase, генерация `.env.local`, запуск `dev`
-- `dev:down` — остановка локального Supabase
-- `db:start` — `supabase start`
-- `db:status` — `supabase status`
-- `db:reset` — пересоздать БД и применить все миграции
-- `build`, `build:dev`, `preview`, `lint`
+`<ваш_user_id>` можно найти в таблице `auth.users` в Studio.
 
-## Окружение
+## Структура проекта
+
+```
+src/
+├── components/          # UI компоненты
+│   ├── ui/             # shadcn/ui компоненты
+│   ├── auth/           # Аутентификация
+│   ├── dashboard/      # Панель управления
+│   ├── deals/          # Управление заказами
+│   └── layout/         # Макет приложения
+├── pages/              # Страницы приложения
+├── integrations/       # Интеграции
+│   └── supabase/       # Supabase клиент и типы
+├── lib/                # Утилиты и хелперы
+├── types/              # TypeScript типы
+└── contexts/           # React контексты
+```
+
+## Переменные окружения
+
 - `VITE_SUPABASE_URL` — URL API Supabase
 - `VITE_SUPABASE_PUBLISHABLE_KEY` — публичный anon key
 
-`.env.local` создается/обновляется автоматически `scripts/dev-up.mjs` при локальной разработке.
+Файл `.env.local` создается автоматически при использовании `npm run dev:up`.
 
-## Код‑стайл и архитектура
-- Компоненты UI в `src/components/ui` построены на shadcn/ui с утилитой `cn` (`src/lib/utils.ts`).
-- Глобальные стили и дизайн‑токены — `src/index.css` и `tailwind.config.ts`.
-- Маршрутизация — `react-router-dom` в `src/App.tsx`.
-- Доступ — через `ProtectedRoute`.
-- Работа с данными — `@tanstack/react-query`.
+## Частые проблемы и решения
 
-## Работа с Supabase
-- Клиент: `import { supabase } from '@/integrations/supabase/client'`.
-- Типы БД: `src/integrations/supabase/types.ts`.
-- Для локальной БД используйте скрипты `db:*` или `dev:up`.
+### 1. "Supabase CLI не найден"
+**Решение**: Установите Supabase CLI одним из способов выше и перезапустите терминал.
 
-## Тестовые/демо данные
-- Вспомогательное локальное хранилище (LocalStorage) реализовано в `src/lib/storage.ts` для демо‑режима некоторых сущностей.
+### 2. "failed to parse environment file: .env.local"
+**Решение**: Удалите `.env.local` и создайте заново через блокнот:
+```powershell
+del .env.local
+# Создайте через блокнот с правильным содержимым
+```
 
-## Частые проблемы
-- Supabase CLI не найден: установите CLI и проверьте `supabase --version` (перезапустите PowerShell для обновления PATH).
-- `dev:up` не смог распарсить `supabase status`: запустите `supabase start` вручную и заполните `.env.local`.
-- Порт 8080 занят: поменяйте `server.port` в `vite.config.ts` или запустите `vite --port 5173`.
-- Docker Desktop не запущен: откройте приложение и дождитесь "Docker is running".
-- RLS `permission denied`: убедитесь, что записываете `user_id = auth.uid()` и пользователь авторизован; для админ‑доступа добавьте роль.
+### 3. "Docker Desktop не запущен"
+**Решение**: Запустите Docker Desktop и дождитесь статуса "Docker is running".
+
+### 4. Белая страница в браузере
+**Решение**: 
+- Проверьте, что Supabase запущен: `supabase status`
+- Убедитесь, что `.env.local` содержит правильные ключи
+- Откройте консоль разработчика (F12) и посмотрите на ошибки
+
+### 5. Порт 8080 занят
+**Решение**: Измените порт в `vite.config.ts` или запустите:
+```powershell
+npm run dev -- --port 5173
+```
+
+### 6. RLS "permission denied"
+**Решение**: Убедитесь, что:
+- Пользователь авторизован
+- В запросах используется `user_id = auth.uid()`
+- Для админ-доступа добавлена роль `admin`
+
+## Остановка и перезапуск
+
+- **Остановка фронтенда**: `Ctrl + C` в терминале с Vite
+- **Остановка Supabase**: `npm run dev:down` или `supabase stop`
+- **Полный перезапуск**: `npm run dev:up`
+
+**Важно**: Данные локальной БД сохраняются между перезапусками. Они удаляются только при явном сбросе (`npm run db:reset`).
+
+## Резервное копирование
+
+```powershell
+# Создание бэкапа
+New-Item -ItemType Directory -Force -Path .\backups | Out-Null
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+supabase db dump -f "backups\local-$stamp.sql"
+
+# Восстановление
+supabase db reset
+supabase db restore -f "backups\local-<timestamp>.sql"
+```
