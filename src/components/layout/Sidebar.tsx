@@ -29,55 +29,57 @@ export function Sidebar() {
 
   useEffect(() => {
     const checkAdmin = async (userId: string) => {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .single();
-      
-      setIsAdmin(!!data);
+      try {
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('role', 'admin')
+          .single();
+        
+        setIsAdmin(!!data);
+      } catch (error) {
+        setIsAdmin(false);
+      }
     };
 
     const loadProfile = async (userId: string) => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('name, avatar_url')
-        .eq('id', userId)
-        .single();
-      
-      setProfileData(data);
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('name, avatar_url')
+          .eq('id', userId)
+          .single();
+        
+        setProfileData(data);
+      } catch (error) {
+        // Если профиль не найден, используем данные из сессии
+        setProfileData(null);
+      }
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      setIsLoading(false); // Сразу показываем интерфейс
+      
       if (session?.user) {
-        // Загружаем профиль и админ статус параллельно
-        Promise.all([
-          loadProfile(session.user.id),
-          checkAdmin(session.user.id)
-        ]).finally(() => {
-          setIsLoading(false);
-        });
-      } else {
-        setIsLoading(false);
+        // Загружаем данные в фоне
+        loadProfile(session.user.id);
+        checkAdmin(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setIsLoading(false); // Сразу показываем интерфейс
+      
       if (session?.user) {
-        // Загружаем профиль и админ статус параллельно
-        Promise.all([
-          loadProfile(session.user.id),
-          checkAdmin(session.user.id)
-        ]).finally(() => {
-          setIsLoading(false);
-        });
+        // Загружаем данные в фоне
+        loadProfile(session.user.id);
+        checkAdmin(session.user.id);
       } else {
         setIsAdmin(false);
         setProfileData(null);
-        setIsLoading(false);
       }
     });
 
@@ -186,14 +188,14 @@ export function Sidebar() {
               <Avatar className="w-10 h-10">
                 <AvatarImage src={profileData?.avatar_url || undefined} />
                 <AvatarFallback className="bg-gradient-primary text-white font-semibold">
-                  {profileData?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                  {(profileData?.name || user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </div>
             {showText && !collapsed && (
               <div className="flex-1 min-w-0 ml-3 transition-opacity duration-200">
                 <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                  {profileData?.name || 'Пользователь'}
+                  {profileData?.name || user.user_metadata?.name || 'Пользователь'}
                 </div>
                 <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
                   {user.email}
