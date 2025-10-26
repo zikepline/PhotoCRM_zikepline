@@ -223,23 +223,11 @@ export default function Tasks() {
 
   // Получить задачи на конкретную дату
   const getTasksForDate = (date: Date) => {
-    const tasksOnDate = tasks.filter(task => {
+    return tasks.filter(task => {
       if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
       return taskDate.toDateString() === date.toDateString();
     });
-    
-    // Отладочная информация
-    if (tasksOnDate.length > 0) {
-      console.log(`Задачи на ${date.toDateString()}:`, tasksOnDate.map(t => ({
-        title: t.title,
-        completed: t.completed,
-        dueDate: t.dueDate,
-        isOverdue: t.dueDate ? isOverdue(t.dueDate, t.id) : false
-      })));
-    }
-    
-    return tasksOnDate;
   };
 
   // Получить количество задач на дату
@@ -435,9 +423,7 @@ export default function Tasks() {
                       hasTasks: (date) => getTaskCountForDate(date) > 0,
                       overdue: (date) => {
                         const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        if (hasOverdue) console.log(`Overdue tasks on ${date.toDateString()}`);
-                        return hasOverdue;
+                        return tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
                       },
                       completed: (date) => {
                         const tasksOnDate = getTasksForDate(date);
@@ -475,13 +461,13 @@ export default function Tasks() {
                     }}
                     modifiersClassNames={{
                       hasTasks: "font-medium",
-                      overdue: "bg-red-100 text-red-800 font-bold",
-                      completed: "bg-green-100 text-green-800 font-medium",
-                      pending: "bg-blue-100 text-blue-800 font-medium",
-                      overdueCompleted: "bg-gradient-to-br from-red-100 to-green-100 text-gray-800 font-bold",
-                      overduePending: "bg-gradient-to-br from-red-100 to-blue-100 text-gray-800 font-bold",
-                      completedPending: "bg-gradient-to-br from-green-100 to-blue-100 text-gray-800 font-medium",
-                      mixedAll: "bg-gradient-to-br from-red-100 via-green-100 to-blue-100 text-gray-800 font-bold",
+                      overdue: "bg-red-100 text-red-800 font-bold border-2 border-red-300",
+                      completed: "bg-green-100 text-green-800 font-medium border-2 border-green-300",
+                      pending: "bg-blue-100 text-blue-800 font-medium border-2 border-blue-300",
+                      overdueCompleted: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-green-100 after:border-l after:border-green-300",
+                      overduePending: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-blue-100 after:border-l after:border-blue-300",
+                      completedPending: "bg-green-100 text-gray-800 font-medium border-2 border-green-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-blue-100 after:border-l after:border-blue-300",
+                      mixedAll: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/3 after:h-full after:bg-green-100 after:border-l after:border-green-300 before:absolute before:top-0 before:right-1/3 before:w-1/3 before:h-full before:bg-blue-100 before:border-l before:border-blue-300",
                     }}
                   />
                 </Card>
