@@ -29,27 +29,51 @@
 ---
 
 ## Быстрый старт
-1) Установите зависимости:
+
+### Предварительные требования
+- **Node.js** 18+ и npm
+- **Docker Desktop** (скачать с https://www.docker.com/products/docker-desktop/)
+- **Supabase CLI** (установить вручную с https://github.com/supabase/cli/releases)
+
+### Установка и запуск
+
+1. **Установите зависимости:**
 ```bash
-npm i
+npm install
 ```
-2) Локально с Supabase (рекомендуется):
+
+2. **Запустите проект (автоматически):**
 ```bash
 npm run dev:up
 ```
-Скрипт поднимет локальный Supabase (`supabase start`), распарсит `supabase status` и автоматически создаст/обновит `.env.local` с `VITE_SUPABASE_URL` и `VITE_SUPABASE_PUBLISHABLE_KEY`, затем запустит Vite.
 
-3) Используете облачный Supabase? Создайте `.env.local` вручную и запустите dev‑сервер:
+Скрипт автоматически:
+- Запустит локальный Supabase
+- Создаст `.env.local` с правильными ключами
+- Запустит Vite dev-сервер
+
+3. **Откройте браузер:**
+- http://localhost:8080
+
+### Альтернативный запуск (ручной)
+
+1. **Запустите Supabase:**
 ```bash
-# .env.local
-VITE_SUPABASE_URL=https://<your-project-id>.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<your-anon-key>
+supabase start
+```
 
-# старт
+2. **Создайте .env.local** (через блокнот):
+```
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS
+```
+
+3. **Запустите Vite:**
+```bash
 npm run dev
 ```
 
-Полная инструкция по локальной разработке: [docs/development.md](docs/development.md).
+**Полная инструкция**: [docs/development.md](docs/development.md)
 
 ---
 
@@ -148,5 +172,3 @@ npm run build
 - UI‑компоненты: [docs/components.md](docs/components.md)
 - Деплой: [docs/deployment.md](docs/deployment.md)
 
-## Лицензия
-Укажите здесь условия лицензии проекта, если нужно.
