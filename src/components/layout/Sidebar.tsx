@@ -52,22 +52,33 @@ export function Sidebar() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdmin(session.user.id);
-        loadProfile(session.user.id);
+        // Загружаем профиль и админ статус параллельно
+        Promise.all([
+          loadProfile(session.user.id),
+          checkAdmin(session.user.id)
+        ]).finally(() => {
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdmin(session.user.id);
-        loadProfile(session.user.id);
+        // Загружаем профиль и админ статус параллельно
+        Promise.all([
+          loadProfile(session.user.id),
+          checkAdmin(session.user.id)
+        ]).finally(() => {
+          setIsLoading(false);
+        });
       } else {
         setIsAdmin(false);
         setProfileData(null);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -99,8 +110,8 @@ export function Sidebar() {
       "fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 z-50",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="p-6 border-b border-sidebar-border flex items-center justify-start">
-        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center">
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-start">
+        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center px-3">
           <span className="flex-shrink-0">P</span>
           {showText && !collapsed && (
             <span className="transition-opacity duration-200">
@@ -166,21 +177,21 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-sidebar-border space-y-2">
-        {!isLoading && user && profileData && (
+        {user && (
           <button
             onClick={() => navigate('/profile')}
             className="flex items-center h-12 px-2 w-full hover:bg-sidebar-accent rounded-lg transition-colors"
           >
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src={profileData.avatar_url || undefined} />
+            <Avatar className="w-10 h-10 flex-shrink-0 ml-0">
+              <AvatarImage src={profileData?.avatar_url || undefined} />
               <AvatarFallback className="bg-gradient-primary text-white font-semibold">
-                {profileData.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                {profileData?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             {showText && !collapsed && (
               <div className="flex-1 min-w-0 ml-3 transition-opacity duration-200">
                 <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                  {profileData.name || 'Пользователь'}
+                  {profileData?.name || 'Пользователь'}
                 </div>
                 <div className="text-xs text-sidebar-foreground/70 whitespace-nowrap overflow-hidden text-ellipsis">
                   {user.email}
@@ -195,11 +206,11 @@ export function Sidebar() {
           onClick={handleLogout}
           className={cn(
             "flex items-center text-sidebar-foreground hover:bg-sidebar-accent h-12",
-            collapsed ? "w-12 justify-center px-0" : "w-full px-3 justify-start"
+            collapsed ? "w-12 justify-start px-3" : "w-full px-3 justify-start"
           )}
           title={collapsed ? "Выход" : undefined}
         >
-          <div className={cn("w-5 h-5 flex items-center justify-center", collapsed ? "" : "flex-shrink-0")}>
+          <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
             <LogOut className="w-5 h-5" />
           </div>
           {showText && !collapsed && (
