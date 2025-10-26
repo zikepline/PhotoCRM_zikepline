@@ -17,6 +17,7 @@ import { Task } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { ru } from 'date-fns/locale';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -61,8 +62,23 @@ export default function Tasks() {
         updatedAt: new Date(t.updated_at),
       }));
 
-      setTasks(formattedTasks);
-      setFilteredTasks(formattedTasks);
+      // Сортируем задачи: сначала по дате создания (свежие сверху), затем по дате выполнения
+      const sortedTasks = formattedTasks.sort((a, b) => {
+        // Сначала сортируем по дате создания (свежие сверху)
+        const createdComparison = b.createdAt.getTime() - a.createdAt.getTime();
+        if (createdComparison !== 0) return createdComparison;
+        
+        // Если даты создания одинаковые, сортируем по дате выполнения
+        if (a.dueDate && b.dueDate) {
+          return a.dueDate.getTime() - b.dueDate.getTime();
+        }
+        if (a.dueDate) return -1;
+        if (b.dueDate) return 1;
+        return 0;
+      });
+
+      setTasks(sortedTasks);
+      setFilteredTasks(sortedTasks);
     } catch (error: any) {
       toast.error(error.message || 'Ошибка загрузки задач');
     }
@@ -229,6 +245,26 @@ export default function Tasks() {
     return tasksOnDate.some(task => task.completed);
   };
 
+  // Получить тип задач на дату для цветовой индикации
+  const getTaskTypeOnDate = (date: Date) => {
+    const tasksOnDate = getTasksForDate(date);
+    if (tasksOnDate.length === 0) return 'none';
+    
+    const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+    const hasCompleted = tasksOnDate.some(task => task.completed);
+    const hasPending = tasksOnDate.some(task => !task.completed);
+    
+    if (hasOverdue && hasCompleted && hasPending) return 'mixed-all';
+    if (hasOverdue && hasCompleted) return 'overdue-completed';
+    if (hasOverdue && hasPending) return 'overdue-pending';
+    if (hasCompleted && hasPending) return 'completed-pending';
+    if (hasOverdue) return 'overdue';
+    if (hasCompleted) return 'completed';
+    if (hasPending) return 'pending';
+    
+    return 'none';
+  };
+
   // Обработчик выбора даты в календаре
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
@@ -326,6 +362,29 @@ export default function Tasks() {
         {/* Календарь */}
         {viewMode === 'calendar' && (
           <div className="mb-6">
+            {/* Фильтры для календарного режима */}
+            <div className="mb-4 flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Поиск по названию или описанию..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Статус" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все задачи</SelectItem>
+                  <SelectItem value="pending">В работе</SelectItem>
+                  <SelectItem value="completed">Выполненные</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
                 <Card className="p-4">
@@ -333,6 +392,7 @@ export default function Tasks() {
                     mode="single"
                     selected={selectedDate}
                     onSelect={handleDateSelect}
+                    locale={ru}
                     className="rounded-md border-0"
                     classNames={{
                       months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
@@ -359,13 +419,17 @@ export default function Tasks() {
                     }}
                     modifiers={{
                       hasTasks: (date) => getTaskCountForDate(date) > 0,
-                      hasOverdue: (date) => hasOverdueTasksOnDate(date),
-                      hasCompleted: (date) => hasCompletedTasksOnDate(date),
+                      taskType: (date) => getTaskTypeOnDate(date),
                     }}
                     modifiersClassNames={{
-                      hasTasks: "bg-blue-100 text-blue-800 font-medium",
-                      hasOverdue: "bg-red-100 text-red-800 font-bold",
-                      hasCompleted: "bg-green-100 text-green-800 font-medium",
+                      hasTasks: "font-medium",
+                      'taskType-overdue': "bg-red-100 text-red-800 font-bold",
+                      'taskType-completed': "bg-green-100 text-green-800 font-medium",
+                      'taskType-pending': "bg-blue-100 text-blue-800 font-medium",
+                      'taskType-overdue-completed': "bg-gradient-to-br from-red-100 to-green-100 text-gray-800 font-bold",
+                      'taskType-overdue-pending': "bg-gradient-to-br from-red-100 to-blue-100 text-gray-800 font-bold",
+                      'taskType-completed-pending': "bg-gradient-to-br from-green-100 to-blue-100 text-gray-800 font-medium",
+                      'taskType-mixed-all': "bg-gradient-to-br from-red-100 via-green-100 to-blue-100 text-gray-800 font-bold",
                     }}
                   />
                 </Card>
@@ -603,6 +667,7 @@ export default function Tasks() {
                     mode="single"
                     selected={formData.dueDate ? new Date(formData.dueDate) : undefined}
                     onSelect={handleFormDateSelect}
+                    locale={ru}
                     initialFocus
                     className="rounded-md border-0"
                     classNames={{
