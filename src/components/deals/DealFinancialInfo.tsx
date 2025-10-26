@@ -7,14 +7,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 
-// Простая иконка рубля
+// Простая и красивая иконка рубля (используем текст)
 const RubleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M8 21V3h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
-    <path d="M8 11h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
-    <path d="M6 7h8"/>
-    <path d="M6 15h8"/>
-  </svg>
+  <span className={className} style={{ fontWeight: 'bold', fontSize: '1em' }}>₽</span>
 );
 
 interface DealFinancialInfoProps {
