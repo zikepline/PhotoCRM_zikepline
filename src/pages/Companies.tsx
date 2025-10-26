@@ -103,6 +103,7 @@ export default function Companies() {
         website: formData.website || null,
         phone: formData.phone || null,
         tags: tagsArray,
+        user_id: (await supabase.auth.getUser()).data.user?.id,
       };
 
       if (selectedCompany) {
