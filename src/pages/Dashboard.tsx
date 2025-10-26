@@ -10,16 +10,13 @@ import { TrendingUp, ShoppingBag, Receipt, ListChecks, CheckCircle2, XCircle } f
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-// Иконка рубля в круге
+// Простая и красивая иконка рубля в круге (используем текст с кругом)
 const CircleRubleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M8 16V8h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
-    <path d="M8 12h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
-    <path d="M6 8h8"/>
-    <path d="M6 16h8"/>
-  </svg>
+  <div className={cn("rounded-full border-2 border-current flex items-center justify-center", className)} style={{ aspectRatio: '1', width: '1.5em', height: '1.5em' }}>
+    <span style={{ fontWeight: 'bold', fontSize: '0.8em' }}>₽</span>
+  </div>
 );
 
 export default function Dashboard() {
