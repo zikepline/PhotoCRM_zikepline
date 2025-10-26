@@ -77,7 +77,7 @@ supabase --version
 Устанавливаются один раз - после копирования проекта
 
 1. **Скачайте проект:**
-   ```powershell
+    ```powershell
    git clone https://github.com/zikepline/PhotoCRM_zikepline.git
    cd PhotoCRM_zikepline
    ```
@@ -116,25 +116,25 @@ npm run dev:up
 ```
 
 ### Или ручной запуск
-```powershell
-Запуск backend
-supabase start
-```
-
-### Переменные окружения
-
-Создайте файл `.env.local` в корне проекта:
-```
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
-```
-
-**Получить ключи**: `supabase status`
-
-```powershell
-Запуск fronted
-npm run dev
-```
+   ```powershell
+   # Запуск backend
+   supabase start
+   ```
+   
+   ### Переменные окружения
+   
+   Создайте файл `.env.local` в корне проекта:
+   ```
+   VITE_SUPABASE_URL=http://127.0.0.1:54321
+   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
+   ```
+   
+   **Получить ключи**: `supabase status`
+   
+   ```powershell
+   # Запуск fronted
+   npm run dev
+   ```                              
 
 Откройте браузер: http://localhost:8080
 
