@@ -29,7 +29,7 @@ export interface Deal {
   tags: string[];
   albumPrice?: number;
   childrenCount?: number;
-  printCost?: number; // стоимость печати за 1 альбом
+  printCost?: number; 
   fixedExpenses?: number;
   schoolPaymentType?: 'percent' | 'fixed';
   schoolPercent?: number;
@@ -44,7 +44,7 @@ export interface Deal {
   layoutPercent?: number;
   layoutFixed?: number;
   taxBase?: 'revenue' | 'net_profit';
-  taxPercent?: number; // налог всегда в процентах
+  taxPercent?: number;
 }
 
 export interface Contact {
@@ -66,6 +66,7 @@ export interface Company {
   website?: string;
   phone?: string;
   responsibleId: string;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -74,11 +75,12 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  dueDate: Date;
-  status: 'pending' | 'in_progress' | 'completed';
+  dueDate?: Date;
+  completed: boolean;
   responsibleId: string;
   dealId?: string;
   contactId?: string;
+  companyId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -101,7 +103,7 @@ export interface User {
 }
 
 export interface Statistics {
-  activeDeals: number; // заказов в работе
+  activeDeals: number; 
   totalRevenue: number;
   profit: number;
   loss: number;
@@ -119,7 +121,7 @@ export interface DateFilter {
 export interface TaxCalculation {
   albumPrice: number;
   childrenCount: number;
-  printCost: number; // за 1 штуку
+  printCost: number; 
   fixedExpenses: number;
   schoolPaymentType: 'percent' | 'fixed';
   schoolPercent?: number;
@@ -134,7 +136,7 @@ export interface TaxCalculation {
   layoutPercent?: number;
   layoutFixed?: number;
   taxBase: 'revenue' | 'net_profit';
-  taxPercent: number; // всегда процент
+  taxPercent: number;
   totalRevenue: number;
   totalCosts: number;
   totalPrintCost: number;
