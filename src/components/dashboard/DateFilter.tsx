@@ -47,6 +47,17 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
     }
   };
 
+  const getCustomButtonText = () => {
+    if (startDate && endDate) {
+      return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    } else if (startDate) {
+      return `${formatDate(startDate)} - Дата окончания`;
+    } else if (endDate) {
+      return `Дата начала - ${formatDate(endDate)}`;
+    }
+    return 'Произвольная дата';
+  };
+
   return (
     <div className="flex flex-wrap gap-2 items-center">
       <Button
@@ -79,39 +90,32 @@ export function DateFilter({ onFilterChange }: DateFilterProps) {
             className={cn('justify-start text-left font-normal')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {startDate ? formatDate(startDate) : 'Дата начала'}
+            {getCustomButtonText()}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={startDate}
-            onSelect={handleStartDateSelect}
-            initialFocus
-            className="pointer-events-auto"
-          />
-        </PopoverContent>
-      </Popover>
-
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant={activeFilter === 'custom' ? 'default' : 'outline'}
-            size="sm"
-            className={cn('justify-start text-left font-normal')}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {endDate ? formatDate(endDate) : 'Дата окончания'}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={endDate}
-            onSelect={handleEndDateSelect}
-            initialFocus
-            className="pointer-events-auto"
-          />
+        <PopoverContent className="w-auto p-4" align="start">
+          <div className="flex gap-4">
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Дата начала</h4>
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={handleStartDateSelect}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Дата окончания</h4>
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={handleEndDateSelect}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
