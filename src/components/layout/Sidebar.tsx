@@ -180,17 +180,16 @@ export function Sidebar() {
         {user && (
           <button
             onClick={() => navigate('/profile')}
-            className={cn(
-              "flex items-center h-12 w-full hover:bg-sidebar-accent rounded-lg transition-colors",
-              collapsed ? "justify-center px-0" : "px-2"
-            )}
+            className="flex items-center h-12 px-3 w-full hover:bg-sidebar-accent rounded-lg transition-colors"
           >
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src={profileData?.avatar_url || undefined} />
-              <AvatarFallback className="bg-gradient-primary text-white font-semibold">
-                {profileData?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src={profileData?.avatar_url || undefined} />
+                <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                  {profileData?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </div>
             {showText && !collapsed && (
               <div className="flex-1 min-w-0 ml-3 transition-opacity duration-200">
                 <div className="text-sm font-medium text-sidebar-foreground whitespace-nowrap overflow-hidden text-ellipsis">
