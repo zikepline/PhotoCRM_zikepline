@@ -461,13 +461,13 @@ export default function Tasks() {
                     }}
                     modifiersClassNames={{
                       hasTasks: "font-medium",
-                      overdue: "bg-red-100 text-red-800 font-bold border-2 border-red-300",
-                      completed: "bg-green-100 text-green-800 font-medium border-2 border-green-300",
-                      pending: "bg-blue-100 text-blue-800 font-medium border-2 border-blue-300",
-                      overdueCompleted: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-green-100 after:border-l after:border-green-300",
-                      overduePending: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-blue-100 after:border-l after:border-blue-300",
-                      completedPending: "bg-green-100 text-gray-800 font-medium border-2 border-green-300 relative after:absolute after:top-0 after:right-0 after:w-1/2 after:h-full after:bg-blue-100 after:border-l after:border-blue-300",
-                      mixedAll: "bg-red-100 text-gray-800 font-bold border-2 border-red-300 relative after:absolute after:top-0 after:right-0 after:w-1/3 after:h-full after:bg-green-100 after:border-l after:border-green-300 before:absolute before:top-0 before:right-1/3 before:w-1/3 before:h-full before:bg-blue-100 before:border-l before:border-blue-300",
+                      overdue: "bg-red-500 text-white font-bold shadow-lg",
+                      completed: "bg-green-500 text-white font-medium shadow-lg",
+                      pending: "bg-blue-500 text-white font-medium shadow-lg",
+                      overdueCompleted: "bg-gradient-to-br from-red-500 to-green-500 text-white font-bold shadow-lg",
+                      overduePending: "bg-gradient-to-br from-red-500 to-blue-500 text-white font-bold shadow-lg",
+                      completedPending: "bg-gradient-to-br from-green-500 to-blue-500 text-white font-medium shadow-lg",
+                      mixedAll: "bg-gradient-to-br from-red-500 via-green-500 to-blue-500 text-white font-bold shadow-lg",
                     }}
                   />
                 </Card>
