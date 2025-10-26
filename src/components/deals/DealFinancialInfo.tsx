@@ -2,10 +2,20 @@ import { Deal } from '@/types/crm';
 import { calculateTax } from '@/lib/utils/calculations';
 import { formatCurrency } from '@/lib/utils/calculations';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, TrendingUp, DollarSign, Receipt, Wallet, Calculator } from 'lucide-react';
+import { ChevronDown, TrendingUp, Receipt, Wallet, Calculator } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
+
+// Простая иконка рубля
+const RubleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 21V3h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
+    <path d="M8 11h4a4 4 0 0 1 4 4 4 4 0 0 1-4 4H8"/>
+    <path d="M6 7h8"/>
+    <path d="M6 15h8"/>
+  </svg>
+);
 
 interface DealFinancialInfoProps {
   deal: Deal;
@@ -66,7 +76,7 @@ export function DealFinancialInfo({ deal, defaultOpen = false }: DealFinancialIn
         <Card className="p-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-start gap-2">
-              <DollarSign className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <RubleIcon className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Выручка</p>
                 <p className="text-sm font-semibold text-green-600">
