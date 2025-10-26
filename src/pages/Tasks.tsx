@@ -473,13 +473,13 @@ export default function Tasks() {
                     }}
                     modifiersClassNames={{
                       hasTasks: "font-medium",
-                      overdue: "bg-red-500 text-white font-bold shadow-lg",
-                      completed: "bg-green-500 text-white font-medium shadow-lg",
-                      pending: "bg-blue-500 text-white font-medium shadow-lg",
-                      overdueCompleted: "bg-gradient-to-br from-red-500 to-green-500 text-white font-bold shadow-lg",
-                      overduePending: "bg-gradient-to-br from-red-500 to-blue-500 text-white font-bold shadow-lg",
-                      completedPending: "bg-gradient-to-br from-green-500 to-blue-500 text-white font-medium shadow-lg",
-                      mixedAll: "bg-gradient-to-br from-red-500 via-green-500 to-blue-500 text-white font-bold shadow-lg",
+                      overdue: "bg-red-600 text-white font-bold shadow-lg",
+                      completed: "bg-green-600 text-white font-medium shadow-lg", 
+                      pending: "bg-blue-600 text-white font-medium shadow-lg",
+                      overdueCompleted: "bg-[linear-gradient(90deg,red_0_50%,green_50%_100%)] text-white font-bold shadow-lg",
+                      overduePending: "bg-[linear-gradient(90deg,red_0_50%,blue_50%_100%)] text-white font-bold shadow-lg",
+                      completedPending: "bg-[linear-gradient(90deg,green_0_50%,blue_50%_100%)] text-white font-medium shadow-lg",
+                      mixedAll: "bg-[linear-gradient(90deg,red_0_33%,green_33%_66%,blue_66%_100%)] text-white font-bold shadow-lg",
                     }}
                   />
                 </Card>
