@@ -180,9 +180,12 @@ export function Sidebar() {
         {user && (
           <button
             onClick={() => navigate('/profile')}
-            className="flex items-center h-12 px-2 w-full hover:bg-sidebar-accent rounded-lg transition-colors"
+            className={cn(
+              "flex items-center h-12 w-full hover:bg-sidebar-accent rounded-lg transition-colors",
+              collapsed ? "justify-center px-0" : "px-2"
+            )}
           >
-            <Avatar className="w-10 h-10 flex-shrink-0 ml-0">
+            <Avatar className="w-10 h-10 flex-shrink-0">
               <AvatarImage src={profileData?.avatar_url || undefined} />
               <AvatarFallback className="bg-gradient-primary text-white font-semibold">
                 {profileData?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
