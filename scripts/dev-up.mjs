@@ -29,7 +29,7 @@ function getSupabaseStatus() {
 
 function parseStatus(output) {
   const urlMatch = output.match(/API URL:\s*(\S+)/i);
-  const anonMatch = output.match(/anon key:\s*(\S+)/i);
+  const anonMatch = output.match(/(?:anon key|Publishable key):\s*(\S+)/i);
   return { url: urlMatch?.[1], anon: anonMatch?.[1] };
 }
 
