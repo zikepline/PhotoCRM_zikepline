@@ -421,42 +421,54 @@ export default function Tasks() {
                     }}
                     modifiers={{
                       hasTasks: (date) => getTaskCountForDate(date) > 0,
-                      overdue: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        return tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                      },
-                      completed: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        return tasksOnDate.some(task => task.completed);
-                      },
-                      pending: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        return tasksOnDate.some(task => !task.completed);
-                      },
-                      overdueCompleted: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        return hasOverdue && hasCompleted && !tasksOnDate.some(task => !task.completed);
-                      },
-                      overduePending: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasOverdue && hasPending && !tasksOnDate.some(task => task.completed);
-                      },
-                      completedPending: (date) => {
-                        const tasksOnDate = getTasksForDate(date);
-                        const hasCompleted = tasksOnDate.some(task => task.completed);
-                        const hasPending = tasksOnDate.some(task => !task.completed);
-                        return hasCompleted && hasPending && !tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
-                      },
                       mixedAll: (date) => {
                         const tasksOnDate = getTasksForDate(date);
                         const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
                         const hasCompleted = tasksOnDate.some(task => task.completed);
                         const hasPending = tasksOnDate.some(task => !task.completed);
                         return hasOverdue && hasCompleted && hasPending;
+                      },
+                      overdueCompleted: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasOverdue && hasCompleted && !hasPending;
+                      },
+                      overduePending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasOverdue && hasPending && !hasCompleted;
+                      },
+                      completedPending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasCompleted && hasPending && !hasOverdue;
+                      },
+                      overdue: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasOverdue && !hasCompleted && !hasPending;
+                      },
+                      completed: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasCompleted && !hasOverdue && !hasPending;
+                      },
+                      pending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasPending && !hasOverdue && !hasCompleted;
                       },
                     }}
                     modifiersClassNames={{
