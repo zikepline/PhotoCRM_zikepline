@@ -24,7 +24,10 @@
 - Docker (для локальной БД Supabase)
 - Supabase CLI (опционально, но рекомендуется)
 
-См. подробную настройку в документации: [docs/development.md](docs/development.md) и [docs/supabase.md](docs/supabase.md).
+См. подробную настройку в документации: 
+- [Руководство по установке](docs/installation.md) - пошаговая установка всех компонентов
+- [Руководство по разработке](docs/development.md) - запуск и работа с проектом
+- [Работа с Supabase](docs/supabase.md) - база данных и миграции
 
 ---
 
@@ -73,7 +76,9 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS
 npm run dev
 ```
 
-**Полная инструкция**: [docs/development.md](docs/development.md)
+**Документация**:
+- [Руководство по установке](docs/installation.md) - установка всех компонентов
+- [Руководство по разработке](docs/development.md) - запуск и работа с проектом
 
 ---
 
@@ -171,4 +176,3 @@ npm run build
 - Схема БД: [docs/database.md](docs/database.md)
 - UI‑компоненты: [docs/components.md](docs/components.md)
 - Деплой: [docs/deployment.md](docs/deployment.md)
-
