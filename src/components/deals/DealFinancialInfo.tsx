@@ -2,7 +2,7 @@ import { Deal } from '@/types/crm';
 import { calculateTax } from '@/lib/utils/calculations';
 import { formatCurrency } from '@/lib/utils/calculations';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, TrendingUp, Receipt, Wallet, Calculator } from 'lucide-react';
+import { ChevronDown, TrendingUp, Wallet, Calculator } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
@@ -91,7 +91,7 @@ export function DealFinancialInfo({ deal, defaultOpen = false }: DealFinancialIn
             </div>
 
             <div className="flex items-start gap-2">
-              <Receipt className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+              <RubleIcon className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Налог</p>
                 <p className="text-sm font-semibold text-orange-600">
