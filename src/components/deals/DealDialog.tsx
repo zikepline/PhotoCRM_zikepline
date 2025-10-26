@@ -75,7 +75,12 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
       if (deal) {
         setFormData({
           ...deal,
-          links: deal.links || []
+          links: deal.links || [],
+          retoucherPaymentType: deal.retoucherPaymentType || 'percent',
+          layoutPaymentType: deal.layoutPaymentType || 'percent',
+          schoolPaymentType: deal.schoolPaymentType || 'percent',
+          photographerPaymentType: deal.photographerPaymentType || 'percent',
+          taxBase: deal.taxBase || 'net_profit'
         });
       } else {
         setFormData({
