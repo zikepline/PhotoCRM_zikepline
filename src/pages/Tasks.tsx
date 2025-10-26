@@ -62,19 +62,20 @@ export default function Tasks() {
         updatedAt: new Date(t.updated_at),
       }));
 
-      // Сортируем задачи: сначала по дате создания (свежие сверху), затем по дате выполнения
+      // Сортируем задачи: сначала по дате выполнения (ближайшие сверху), затем по дате создания
       const sortedTasks = formattedTasks.sort((a, b) => {
-        // Сначала сортируем по дате создания (свежие сверху)
-        const createdComparison = b.createdAt.getTime() - a.createdAt.getTime();
-        if (createdComparison !== 0) return createdComparison;
-        
-        // Если даты создания одинаковые, сортируем по дате выполнения
+        // Сначала сортируем по дате выполнения (ближайшие сверху)
         if (a.dueDate && b.dueDate) {
-          return a.dueDate.getTime() - b.dueDate.getTime();
+          const dueComparison = a.dueDate.getTime() - b.dueDate.getTime();
+          if (dueComparison !== 0) return dueComparison;
         }
-        if (a.dueDate) return -1;
-        if (b.dueDate) return 1;
-        return 0;
+        
+        // Если одна задача имеет дату выполнения, а другая нет - задача с датой идет выше
+        if (a.dueDate && !b.dueDate) return -1;
+        if (!a.dueDate && b.dueDate) return 1;
+        
+        // Если обе задачи без даты выполнения или даты одинаковые, сортируем по дате создания (свежие сверху)
+        return b.createdAt.getTime() - a.createdAt.getTime();
       });
 
       setTasks(sortedTasks);
@@ -221,11 +222,23 @@ export default function Tasks() {
 
   // Получить задачи на конкретную дату
   const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => {
+    const tasksOnDate = tasks.filter(task => {
       if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
       return taskDate.toDateString() === date.toDateString();
     });
+    
+    // Отладочная информация
+    if (tasksOnDate.length > 0) {
+      console.log(`Задачи на ${date.toDateString()}:`, tasksOnDate.map(t => ({
+        title: t.title,
+        completed: t.completed,
+        dueDate: t.dueDate,
+        isOverdue: t.dueDate ? isOverdue(t.dueDate, t.id) : false
+      })));
+    }
+    
+    return tasksOnDate;
   };
 
   // Получить количество задач на дату
@@ -419,17 +432,55 @@ export default function Tasks() {
                     }}
                     modifiers={{
                       hasTasks: (date) => getTaskCountForDate(date) > 0,
-                      taskType: (date) => getTaskTypeOnDate(date),
+                      overdue: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        if (hasOverdue) console.log(`Overdue tasks on ${date.toDateString()}`);
+                        return hasOverdue;
+                      },
+                      completed: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        return tasksOnDate.some(task => task.completed);
+                      },
+                      pending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        return tasksOnDate.some(task => !task.completed);
+                      },
+                      overdueCompleted: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        return hasOverdue && hasCompleted && !tasksOnDate.some(task => !task.completed);
+                      },
+                      overduePending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasOverdue && hasPending && !tasksOnDate.some(task => task.completed);
+                      },
+                      completedPending: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasCompleted && hasPending && !tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                      },
+                      mixedAll: (date) => {
+                        const tasksOnDate = getTasksForDate(date);
+                        const hasOverdue = tasksOnDate.some(task => isOverdue(task.dueDate!, task.id));
+                        const hasCompleted = tasksOnDate.some(task => task.completed);
+                        const hasPending = tasksOnDate.some(task => !task.completed);
+                        return hasOverdue && hasCompleted && hasPending;
+                      },
                     }}
                     modifiersClassNames={{
                       hasTasks: "font-medium",
-                      'taskType-overdue': "bg-red-100 text-red-800 font-bold",
-                      'taskType-completed': "bg-green-100 text-green-800 font-medium",
-                      'taskType-pending': "bg-blue-100 text-blue-800 font-medium",
-                      'taskType-overdue-completed': "bg-gradient-to-br from-red-100 to-green-100 text-gray-800 font-bold",
-                      'taskType-overdue-pending': "bg-gradient-to-br from-red-100 to-blue-100 text-gray-800 font-bold",
-                      'taskType-completed-pending': "bg-gradient-to-br from-green-100 to-blue-100 text-gray-800 font-medium",
-                      'taskType-mixed-all': "bg-gradient-to-br from-red-100 via-green-100 to-blue-100 text-gray-800 font-bold",
+                      overdue: "bg-red-100 text-red-800 font-bold",
+                      completed: "bg-green-100 text-green-800 font-medium",
+                      pending: "bg-blue-100 text-blue-800 font-medium",
+                      overdueCompleted: "bg-gradient-to-br from-red-100 to-green-100 text-gray-800 font-bold",
+                      overduePending: "bg-gradient-to-br from-red-100 to-blue-100 text-gray-800 font-bold",
+                      completedPending: "bg-gradient-to-br from-green-100 to-blue-100 text-gray-800 font-medium",
+                      mixedAll: "bg-gradient-to-br from-red-100 via-green-100 to-blue-100 text-gray-800 font-bold",
                     }}
                   />
                 </Card>
