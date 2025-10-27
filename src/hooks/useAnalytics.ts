@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Deal, AnalyticsPeriod, AnalyticsDateRange, AnalyticsData } from '@/types/crm';
 import { generateAnalyticsData } from '@/lib/utils/analytics';
 
-export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDateRange) {
+export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDateRange, selectedMonth?: Date) {
   const [deals, setDeals] = useState<Deal[]>([]);
   
   // Загрузка сделок
@@ -59,8 +59,8 @@ export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDat
   // Генерация аналитических данных
   const analyticsData = useMemo(() => {
     if (!deals.length) return null;
-    return generateAnalyticsData(deals, period, customRange);
-  }, [deals, period, customRange]);
+    return generateAnalyticsData(deals, period, customRange, selectedMonth);
+  }, [deals, period, customRange, selectedMonth]);
 
   return {
     analyticsData,
