@@ -10,7 +10,6 @@ import { MetricsGrid } from '@/components/analytics/MetricsGrid';
 import { AnalyticsSummary } from '@/components/analytics/AnalyticsSummary';
 import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { ExportData } from '@/components/analytics/ExportData';
-import { KPIDashboard } from '@/components/analytics/KPIDashboard';
 import { AnalyticsFilters, AnalyticsPeriod } from '@/types/crm';
 import { toast } from 'sonner';
 
@@ -23,7 +22,8 @@ export default function Analytics() {
 
   const { analyticsData, isLoading, error } = useAnalytics(
     filters.period, 
-    filters.customDateRange
+    filters.customDateRange,
+    filters.selectedMonth
   );
 
   const handleRefresh = () => {
@@ -82,48 +82,26 @@ export default function Analytics() {
         </div>
       ) : analyticsData ? (
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview">Обзор</TabsTrigger>
-            <TabsTrigger value="metrics">Метрики</TabsTrigger>
-            <TabsTrigger value="charts">Графики</TabsTrigger>
             <TabsTrigger value="detailed">Детально</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <KPIDashboard 
-              metrics={analyticsData.metrics}
-              targets={{
-                revenue: 1000000, // Пример цели
-                profit: 300000,
-                deals: 50,
-                conversion: 80
-              }}
-            />
-            
+            {/* Основные показатели */}
             <AnalyticsSummary summary={analyticsData.summary} />
             
+            {/* Сравнение с предыдущим периодом */}
             <Card>
               <CardHeader>
-                <CardTitle>Основные показатели</CardTitle>
+                <CardTitle>Изменения к предыдущему периоду</CardTitle>
               </CardHeader>
               <CardContent>
                 <MetricsGrid metrics={analyticsData.metrics} />
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="metrics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Сравнение с предыдущим периодом</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <MetricsGrid metrics={analyticsData.metrics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="charts" className="space-y-6">
+            {/* График динамики */}
             <Card>
               <CardHeader>
                 <CardTitle>Динамика показателей</CardTitle>
