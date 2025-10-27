@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -23,6 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const columns: { status: string; title: string; color: string }[] = [
   { status: 'new', title: 'Новые', color: 'bg-blue-500' },
@@ -39,6 +42,8 @@ const columns: { status: string; title: string; color: string }[] = [
 export default function Kanban() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     deal: Deal | null;
@@ -54,11 +59,26 @@ export default function Kanban() {
   );
 
   const loadDeals = async () => {
+    setIsLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      // Загружаем только активные заказы (не завершенные и не проигранные) для лучшей производительности
+      let query = supabase
         .from('deals')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Если выбран конкретный статус, фильтруем по нему
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      } else {
+        // По умолчанию показываем только активные заказы
+        query = query.not('status', 'in', '(completed,lost)');
+      }
+
+      // Ограничиваем количество записей для производительности
+      query = query.limit(100);
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -94,14 +114,23 @@ export default function Kanban() {
       setDeals(formattedDeals);
     } catch (error: any) {
       toast.error(error.message || 'Ошибка загрузки заказов');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadDeals();
-  }, []);
+  }, [statusFilter]);
 
-  const handleDragStart = (event: DragStartEvent) => {
+  // Мемоизируем группировку заказов для производительности
+  const dealsByStatus = useMemo(() => {
+    const grouped: Record<string, Deal[]> = {};
+    columns.forEach(col => {
+      grouped[col.status] = deals.filter(deal => deal.status === col.status);
+    });
+    return grouped;
+  }, [deals]);
     const deal = deals.find((d) => d.id === event.active.id);
     if (deal) {
       setActiveDeal(deal);
@@ -181,40 +210,81 @@ export default function Kanban() {
   };
 
   const getDealsByStatus = (status: string) => {
-    return deals.filter((deal) => deal.status === status);
+    return dealsByStatus[status] || [];
   };
 
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Доска заказов</h1>
-        <p className="text-muted-foreground mt-1">
-          Перетаскивайте карточки для изменения статуса
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Доска заказов</h1>
+            <p className="text-muted-foreground mt-1">
+              Перетаскивайте карточки для изменения статуса
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Фильтр по статусу" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все активные</SelectItem>
+                <SelectItem value="new">Новые</SelectItem>
+                <SelectItem value="contact">Контакт</SelectItem>
+                <SelectItem value="negotiation">Переговоры</SelectItem>
+                <SelectItem value="contract">Договор</SelectItem>
+                <SelectItem value="shooting">Съемка</SelectItem>
+                <SelectItem value="editing">Обработка</SelectItem>
+                <SelectItem value="delivery">Доставка</SelectItem>
+                <SelectItem value="completed">Завершено</SelectItem>
+                <SelectItem value="lost">Проигран</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="outline" 
+              onClick={loadDeals} 
+              disabled={isLoading}
+              size="sm"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Обновить
+            </Button>
+          </div>
+        </div>
+        
+        {isLoading && (
+          <div className="text-center py-8">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">Загрузка заказов...</p>
+          </div>
+        )}
       </div>
 
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.status}
-              status={column.status}
-              title={column.title}
-              color={column.color}
-              deals={getDealsByStatus(column.status)}
-              onUpdate={loadDeals}
-            />
-          ))}
-        </div>
+      {!isLoading && (
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {columns.map((column) => (
+              <KanbanColumn
+                key={column.status}
+                status={column.status}
+                title={column.title}
+                color={column.color}
+                deals={getDealsByStatus(column.status)}
+                onUpdate={loadDeals}
+              />
+            ))}
+          </div>
 
-        <DragOverlay>
-          {activeDeal ? <KanbanCard deal={activeDeal} onUpdate={loadDeals} /> : null}
-        </DragOverlay>
-      </DndContext>
+          <DragOverlay>
+            {activeDeal ? <KanbanCard deal={activeDeal} onUpdate={loadDeals} /> : null}
+          </DragOverlay>
+        </DndContext>
+      )}
 
       <AlertDialog 
         open={confirmDialog.open} 
