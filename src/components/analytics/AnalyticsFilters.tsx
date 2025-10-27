@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { AnalyticsPeriod, AnalyticsFilters } from '@/types/crm';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,10 @@ interface AnalyticsFiltersProps {
 }
 
 export function AnalyticsFiltersComponent({ filters, onFiltersChange }: AnalyticsFiltersProps) {
+  const [selectedMonth, setSelectedMonth] = useState<Date>(
+    filters.selectedMonth || new Date()
+  );
+
   const handlePeriodChange = (period: AnalyticsPeriod) => {
     onFiltersChange({
       ...filters,
@@ -43,11 +47,33 @@ export function AnalyticsFiltersComponent({ filters, onFiltersChange }: Analytic
     }
   };
 
+  const handleMonthChange = (month: Date) => {
+    setSelectedMonth(month);
+    onFiltersChange({
+      ...filters,
+      period: 'specific_month',
+      selectedMonth: month,
+      customDateRange: {
+        startDate: startOfMonth(month),
+        endDate: endOfMonth(month)
+      }
+    });
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newMonth = direction === 'prev' 
+      ? subMonths(selectedMonth, 1)
+      : addMonths(selectedMonth, 1);
+    
+    handleMonthChange(newMonth);
+  };
+
   const periodOptions = [
     { value: 'day', label: 'Сегодня' },
     { value: 'current_month', label: 'Текущий месяц' },
     { value: 'last_month', label: 'Прошлый месяц' },
     { value: 'current_year', label: 'Текущий год' },
+    { value: 'specific_month', label: 'Конкретный месяц' },
     { value: 'custom', label: 'Произвольная дата' }
   ];
 
@@ -81,7 +107,7 @@ export function AnalyticsFiltersComponent({ filters, onFiltersChange }: Analytic
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Группировка</label>
+            <label className="text-sm font-medium">Группировка данных</label>
             <Select value={filters.groupBy} onValueChange={handleGroupByChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Выберите группировку" />
@@ -97,6 +123,52 @@ export function AnalyticsFiltersComponent({ filters, onFiltersChange }: Analytic
           </div>
         </div>
 
+        {/* Выбор конкретного месяца */}
+        {filters.period === 'specific_month' && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Выберите месяц</label>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('prev')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(selectedMonth, "MMMM yyyy", { locale: ru })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedMonth}
+                    onSelect={(date) => date && handleMonthChange(date)}
+                    defaultMonth={selectedMonth}
+                    locale={ru}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('next')}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Произвольная дата */}
         {filters.period === 'custom' && (
           <div className="space-y-2">
             <label className="text-sm font-medium">Диапазон дат</label>
