@@ -188,7 +188,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
       };
 
       if (deal?.id) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('deals')
           .update(dealData)
           .eq('id', deal.id);
@@ -196,7 +196,7 @@ export function DealDialog({ open, onOpenChange, deal, onSuccess }: DealDialogPr
         if (error) throw error;
         toast.success('Заказ обновлен');
       } else {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('deals')
           .insert(dealData);
 
