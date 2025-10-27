@@ -131,6 +131,8 @@ export default function Kanban() {
     });
     return grouped;
   }, [deals]);
+
+  const handleDragStart = (event: DragStartEvent) => {
     const deal = deals.find((d) => d.id === event.active.id);
     if (deal) {
       setActiveDeal(deal);
