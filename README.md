@@ -64,6 +64,10 @@ npm run dev:up
 ```bash
 supabase start
 ```
+или
+```bash
+supabase start --ignore-health-check
+```
 
 2. **Создайте .env.local** (через блокнот):
 ```
