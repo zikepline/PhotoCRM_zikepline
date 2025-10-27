@@ -107,6 +107,12 @@ export default function Kanban() {
         photographerPaymentType: d.photographer_payment_type,
         photographerPercent: d.photographer_percent,
         photographerFixed: d.photographer_fixed,
+        retoucherPaymentType: d.retoucher_payment_type,
+        retoucherPercent: d.retoucher_percent,
+        retoucherFixed: d.retoucher_fixed,
+        layoutPaymentType: d.layout_payment_type,
+        layoutPercent: d.layout_percent,
+        layoutFixed: d.layout_fixed,
         taxBase: d.tax_base,
         taxPercent: d.tax_percent,
       }));
