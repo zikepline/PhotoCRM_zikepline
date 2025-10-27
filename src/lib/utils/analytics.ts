@@ -2,7 +2,7 @@ import { Deal, AnalyticsPeriod, AnalyticsDateRange, AnalyticsData, AnalyticsMetr
 import { calculateStatistics } from './calculations';
 
 // Получение диапазона дат для периода
-export function getDateRangeForPeriod(period: AnalyticsPeriod, customRange?: AnalyticsDateRange): AnalyticsDateRange {
+export function getDateRangeForPeriod(period: AnalyticsPeriod, customRange?: AnalyticsDateRange, selectedMonth?: Date): AnalyticsDateRange {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   
@@ -31,6 +31,15 @@ export function getDateRangeForPeriod(period: AnalyticsPeriod, customRange?: Ana
         startDate: new Date(now.getFullYear(), 0, 1),
         endDate: new Date(now.getFullYear(), 11, 31, 23, 59, 59)
       };
+    
+    case 'specific_month':
+      if (selectedMonth) {
+        return {
+          startDate: new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1),
+          endDate: new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0, 23, 59, 59)
+        };
+      }
+      return getDateRangeForPeriod('current_month');
     
     case 'custom':
       return customRange || getDateRangeForPeriod('current_month');
@@ -222,9 +231,10 @@ export function createChartData(
 export function generateAnalyticsData(
   deals: Deal[],
   period: AnalyticsPeriod,
-  customRange?: AnalyticsDateRange
+  customRange?: AnalyticsDateRange,
+  selectedMonth?: Date
 ): AnalyticsData {
-  const dateRange = getDateRangeForPeriod(period, customRange);
+  const dateRange = getDateRangeForPeriod(period, customRange, selectedMonth);
   const currentDeals = filterDealsByDateRange(deals, dateRange);
   
   // Получаем данные для предыдущего периода для сравнения
