@@ -29,7 +29,7 @@ export interface Deal {
   tags: string[];
   albumPrice?: number;
   childrenCount?: number;
-  printCost?: number; 
+  printCost?: number; // стоимость печати за 1 альбом
   fixedExpenses?: number;
   schoolPaymentType?: 'percent' | 'fixed';
   schoolPercent?: number;
@@ -44,7 +44,7 @@ export interface Deal {
   layoutPercent?: number;
   layoutFixed?: number;
   taxBase?: 'revenue' | 'net_profit';
-  taxPercent?: number;
+  taxPercent?: number; // налог всегда в процентах
 }
 
 export interface Contact {
@@ -103,7 +103,7 @@ export interface User {
 }
 
 export interface Statistics {
-  activeDeals: number; 
+  activeDeals: number; // заказов в работе
   totalRevenue: number;
   profit: number;
   loss: number;
@@ -121,7 +121,7 @@ export interface DateFilter {
 export interface TaxCalculation {
   albumPrice: number;
   childrenCount: number;
-  printCost: number; 
+  printCost: number; // за 1 штуку
   fixedExpenses: number;
   schoolPaymentType: 'percent' | 'fixed';
   schoolPercent?: number;
@@ -136,7 +136,7 @@ export interface TaxCalculation {
   layoutPercent?: number;
   layoutFixed?: number;
   taxBase: 'revenue' | 'net_profit';
-  taxPercent: number;
+  taxPercent: number; // всегда процент
   totalRevenue: number;
   totalCosts: number;
   totalPrintCost: number;
@@ -147,4 +147,55 @@ export interface TaxCalculation {
   photographerPayment: number;
   retoucherPayment: number;
   layoutPayment: number;
+}
+
+// Аналитические типы
+export type AnalyticsPeriod = 'day' | 'current_month' | 'last_month' | 'current_year' | 'custom';
+
+export interface AnalyticsDateRange {
+  startDate: Date;
+  endDate: Date;
+}
+
+export interface AnalyticsMetric {
+  name: string;
+  value: number;
+  previousValue?: number;
+  changePercent?: number;
+  color?: string;
+}
+
+export interface ChartDataPoint {
+  date: string;
+  value: number;
+  label?: string;
+}
+
+export interface AnalyticsChartData {
+  metric: string;
+  data: ChartDataPoint[];
+  color: string;
+  yAxis?: 'left' | 'right';
+}
+
+export interface AnalyticsData {
+  period: AnalyticsPeriod;
+  dateRange: AnalyticsDateRange;
+  metrics: AnalyticsMetric[];
+  charts: AnalyticsChartData[];
+  summary: {
+    totalRevenue: number;
+    totalProfit: number;
+    totalDeals: number;
+    averageDealSize: number;
+    conversionRate: number;
+    profitMargin: number;
+  };
+}
+
+export interface AnalyticsFilters {
+  period: AnalyticsPeriod;
+  customDateRange?: AnalyticsDateRange;
+  selectedMetrics: string[];
+  groupBy: 'day' | 'week' | 'month';
 }
