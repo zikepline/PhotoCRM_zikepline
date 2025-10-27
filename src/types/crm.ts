@@ -150,7 +150,7 @@ export interface TaxCalculation {
 }
 
 // Аналитические типы
-export type AnalyticsPeriod = 'day' | 'current_month' | 'last_month' | 'current_year' | 'custom';
+export type AnalyticsPeriod = 'day' | 'current_month' | 'last_month' | 'current_year' | 'specific_month' | 'custom';
 
 export interface AnalyticsDateRange {
   startDate: Date;
@@ -196,6 +196,7 @@ export interface AnalyticsData {
 export interface AnalyticsFilters {
   period: AnalyticsPeriod;
   customDateRange?: AnalyticsDateRange;
+  selectedMonth?: Date; // Для выбора конкретного месяца
   selectedMetrics: string[];
   groupBy: 'day' | 'week' | 'month';
 }
