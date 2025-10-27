@@ -45,8 +45,8 @@ supabase db restore -f "backups\local-<timestamp>.sql"
 
 Создайте файл `.env.local` в корне проекта:
 ```
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
+echo "VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS" > .env.local
 ```
 
 **Получить ключи**: `supabase status`
