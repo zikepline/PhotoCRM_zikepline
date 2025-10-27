@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -97,12 +117,18 @@ export type Database = {
           email: string | null
           fixed_expenses: number | null
           id: string
+          layout_fixed: number | null
+          layout_payment_type: string | null
+          layout_percent: number | null
           links: Json | null
           phone: string | null
           photographer_fixed: number | null
           photographer_payment_type: string | null
           photographer_percent: number | null
           print_cost: number | null
+          retoucher_fixed: number | null
+          retoucher_payment_type: string | null
+          retoucher_percent: number | null
           school_fixed: number | null
           school_payment_type: string | null
           school_percent: number | null
@@ -125,12 +151,18 @@ export type Database = {
           email?: string | null
           fixed_expenses?: number | null
           id?: string
+          layout_fixed?: number | null
+          layout_payment_type?: string | null
+          layout_percent?: number | null
           links?: Json | null
           phone?: string | null
           photographer_fixed?: number | null
           photographer_payment_type?: string | null
           photographer_percent?: number | null
           print_cost?: number | null
+          retoucher_fixed?: number | null
+          retoucher_payment_type?: string | null
+          retoucher_percent?: number | null
           school_fixed?: number | null
           school_payment_type?: string | null
           school_percent?: number | null
@@ -153,12 +185,18 @@ export type Database = {
           email?: string | null
           fixed_expenses?: number | null
           id?: string
+          layout_fixed?: number | null
+          layout_payment_type?: string | null
+          layout_percent?: number | null
           links?: Json | null
           phone?: string | null
           photographer_fixed?: number | null
           photographer_payment_type?: string | null
           photographer_percent?: number | null
           print_cost?: number | null
+          retoucher_fixed?: number | null
+          retoucher_payment_type?: string | null
+          retoucher_percent?: number | null
           school_fixed?: number | null
           school_payment_type?: string | null
           school_percent?: number | null
@@ -450,9 +488,13 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "user"],
     },
   },
 } as const
+
