@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Kanban, Calculator, Users, Building2, CheckSquare, User as UserIcon, Shield, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { LayoutDashboard, Kanban, Calculator, BarChart3, Users, Building2, CheckSquare, User as UserIcon, Shield, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -13,6 +13,7 @@ const navItems = [
   { title: 'Панель управления', url: '/', icon: LayoutDashboard },
   { title: 'Доска заказов', url: '/kanban', icon: Kanban },
   { title: 'Калькулятор заказа', url: '/calculator', icon: Calculator },
+  { title: 'Аналитика', url: '/analytics', icon: BarChart3 },
   { title: 'Контакты', url: '/contacts', icon: Users },
   { title: 'Компании', url: '/companies', icon: Building2 },
   { title: 'Задачи', url: '/tasks', icon: CheckSquare },
@@ -113,7 +114,7 @@ export function Sidebar() {
       collapsed ? "w-20" : "w-64"
     )}>
       <div className="p-4 border-b border-sidebar-border flex items-center justify-start">
-        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center px-3 ml-1">
+        <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap flex items-center px-3">
           <span className="flex-shrink-0">P</span>
           {showText && !collapsed && (
             <span className="transition-opacity duration-200">
