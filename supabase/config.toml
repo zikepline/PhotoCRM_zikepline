@@ -14,22 +14,14 @@ major_version = 15
 
 [db.pooler]
 enabled = false
-port = 54329
-pool_mode = "transaction"
-default_pool_size = 20
-max_client_conn = 100
 
 [realtime]
 enabled = true
-port = 54323
-max_header_length = 4096
 
 [studio]
 enabled = true
-port = 54323
 api_url = "http://127.0.0.1:54321"
 
-# Отключаем аналитику и другие ненужные сервисы
 [analytics]
 enabled = false
 
@@ -38,14 +30,7 @@ enabled = false
 
 [storage]
 enabled = true
-port = 54324
 file_size_limit = "50MiB"
-buckets = [
-  { name = "avatars", public = true },
-]
 
 [edge_runtime]
-enabled = false
-
-[functions]
 enabled = false
