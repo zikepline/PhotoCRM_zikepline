@@ -14,8 +14,8 @@ import { cn } from '@/lib/utils';
 
 // Простая и красивая иконка рубля в круге (используем текст с кругом)
 const CircleRubleIcon = ({ className }: { className?: string }) => (
-  <div className={cn("rounded-full border-2 border-current flex items-center justify-center w-8 h-8", className)}>
-    <span className="font-bold text-base">₽</span>
+  <div className={cn("rounded-full border-2 border-current flex items-center justify-center", className)} style={{ aspectRatio: '1', width: '1.5em', height: '1.5em' }}>
+    <span style={{ fontWeight: 'bold', fontSize: '0.8em' }}>₽</span>
   </div>
 );
 
@@ -27,10 +27,12 @@ export default function Dashboard() {
 
   const loadDeals = async () => {
     try {
+      // Ограничиваем количество заказов для производительности
       const { data, error } = await (supabase as any)
         .from('deals')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(200);
 
       if (error) throw error;
 
@@ -164,7 +166,7 @@ export default function Dashboard() {
         <StatCard
           title="Налоги (за период)"
           value={formatCurrency(filteredStats.totalTax)}
-          icon={CircleRubleIcon}
+          icon={Receipt}
           variant="warning"
         />
       </div>
