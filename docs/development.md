@@ -90,25 +90,15 @@ supabase status
 ```
 
 **Шаг 3: Создайте .env.local**
-Создайте файл `.env.local` в корне проекта через блокнот:
+Создайте файл `.env.local` в корне проекта через консоль:
 ```
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS
+echo "VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ_ИЗ_STATUS" > .env.local
 ```
 
 **Шаг 4: Запустите Vite**
 ```powershell
 npm run dev
-```
-
-### Способ 3: Через PowerShell (создание .env.local)
-```powershell
-# После запуска supabase start
-$envContent = @"
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ВАШ_КЛЮЧ
-"@
-Set-Content -Path .\.env.local -Value $envContent -Encoding utf8
 ```
 
 ## Проверка работоспособности
