@@ -188,7 +188,7 @@ export default function Kanban() {
     );
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('deals')
         .update({ status: newStatus })
         .eq('id', dealId);
