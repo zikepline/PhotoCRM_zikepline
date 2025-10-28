@@ -191,6 +191,14 @@ export interface AnalyticsData {
     conversionRate: number;
     profitMargin: number;
   };
+  previousSummary: {
+    totalRevenue: number;
+    totalProfit: number;
+    totalDeals: number;
+    averageDealSize: number;
+    conversionRate: number;
+    profitMargin: number;
+  };
 }
 
 export interface AnalyticsFilters {
