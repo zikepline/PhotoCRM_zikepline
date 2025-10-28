@@ -43,9 +43,6 @@ export default function Kanban() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [includeCompletedSubset, setIncludeCompletedSubset] = useState<boolean>(true);
-  const [completedSubsetLimit, setCompletedSubsetLimit] = useState<number>(50);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     deal: Deal | null;
@@ -66,27 +63,16 @@ export default function Kanban() {
       const pageSize = 200;
       let allRows: any[] = [];
 
-      // Базовый билдера запроса с учётом фильтра статуса
-      const buildQuery = () => {
-        let q = supabase
-          .from('deals')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (statusFilter !== 'all') {
-          q = q.eq('status', statusFilter);
-        } else {
-          // Для активного режима "Все активные" исключаем завершённые и проигранные
-          q = q.not('status', 'in', '(completed,lost)');
-        }
-        return q;
-      };
-
-      // Пагинация: тянем все страницы пока приходят записи
+      // Загружаем ВСЕ заказы без фильтров
       let from = 0;
       while (true) {
         const to = from + pageSize - 1;
-        const { data, error } = await buildQuery().range(from, to);
+        const { data, error } = await supabase
+          .from('deals')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(from, to);
+        
         if (error) throw error;
         const batch = data || [];
         allRows = allRows.concat(batch);
@@ -94,25 +80,7 @@ export default function Kanban() {
         from += pageSize;
       }
 
-      // Дополнительно: когда выбран режим "Все активные", опционально подмешиваем ограниченный список завершённых
-      if (statusFilter === 'all' && includeCompletedSubset && completedSubsetLimit > 0) {
-        const COMPLETED_LIMIT = completedSubsetLimit;
-        const { data: completedData, error: completedError } = await supabase
-          .from('deals')
-          .select('*')
-          .eq('status', 'completed')
-          .order('created_at', { ascending: false })
-          .limit(COMPLETED_LIMIT);
-        if (completedError) throw completedError;
-        allRows = allRows.concat(completedData || []);
-      }
-
-      // Удаляем дубликаты по id (вдруг пересечение по диапазонам)
-      const uniqueMap = new Map<string, any>();
-      for (const r of allRows) uniqueMap.set(r.id, r);
-      const uniqueRows = Array.from(uniqueMap.values());
-
-      const formattedDeals: Deal[] = uniqueRows.map((d: any) => ({
+      const formattedDeals: Deal[] = allRows.map((d: any) => ({
         id: d.id,
         title: d.title,
         amount: Number(d.amount) || 0,
@@ -157,7 +125,7 @@ export default function Kanban() {
 
   useEffect(() => {
     loadDeals();
-  }, [statusFilter, includeCompletedSubset, completedSubsetLimit]);
+  }, []);
 
   // Мемоизируем группировку заказов для производительности
   const dealsByStatus = useMemo(() => {
@@ -262,50 +230,6 @@ export default function Kanban() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Фильтр по статусу" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все активные</SelectItem>
-                <SelectItem value="new">Новые</SelectItem>
-                <SelectItem value="contact">Контакт</SelectItem>
-                <SelectItem value="negotiation">Переговоры</SelectItem>
-                <SelectItem value="contract">Договор</SelectItem>
-                <SelectItem value="shooting">Съемка</SelectItem>
-                <SelectItem value="editing">Обработка</SelectItem>
-                <SelectItem value="delivery">Доставка</SelectItem>
-                <SelectItem value="completed">Завершено</SelectItem>
-                <SelectItem value="lost">Проигран</SelectItem>
-              </SelectContent>
-            </Select>
-            {statusFilter === 'all' && (
-              <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={includeCompletedSubset}
-                    onChange={(e) => setIncludeCompletedSubset(e.target.checked)}
-                  />
-                  Показывать часть завершённых
-                </label>
-                <Select
-                  value={String(completedSubsetLimit)}
-                  onValueChange={(v) => setCompletedSubsetLimit(Number(v))}
-                  disabled={!includeCompletedSubset}
-                >
-                  <SelectTrigger className="w-24">
-                    <SelectValue placeholder="Лимит" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
             <Button 
               variant="outline" 
               onClick={loadDeals} 
