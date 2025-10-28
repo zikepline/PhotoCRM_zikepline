@@ -10,7 +10,7 @@ import { User } from '@supabase/supabase-js';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 
 const navItems = [
-  { title: 'Панель управления', url: '/', icon: LayoutDashboard },
+  { title: 'Панель управления', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Доска заказов', url: '/kanban', icon: Kanban },
   { title: 'Калькулятор заказа', url: '/calculator', icon: Calculator },
   { title: 'Аналитика', url: '/analytics', icon: BarChart3 },
