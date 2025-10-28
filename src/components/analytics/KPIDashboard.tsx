@@ -4,6 +4,9 @@
     import { Progress } from '@/components/ui/progress';
     import { 
     Target, 
+    TrendingUp, 
+    TrendingDown, 
+    Minus,
     DollarSign,
     Users
     } from 'lucide-react';
@@ -15,13 +18,29 @@
     title: string;
     value: string | number;
     target?: number;
+    change?: number;
     icon: React.ComponentType<{ className?: string }>;
     color?: string;
     description?: string;
     }
 
-    function KPICard({ title, value, target, icon: Icon, color = '#3b82f6', description }: KPICardProps) {
+    function KPICard({ title, value, target, change, icon: Icon, color = '#3b82f6', description }: KPICardProps) {
     const progress = target ? (typeof value === 'number' ? (value / target) * 100 : 0) : undefined;
+    const isPositive = change && change > 0;
+    const isNegative = change && change < 0;
+    const isNeutral = change === 0 || !change;
+
+    const getTrendIcon = () => {
+        if (isPositive) return <TrendingUp className="w-4 h-4" />;
+        if (isNegative) return <TrendingDown className="w-4 h-4" />;
+        return <Minus className="w-4 h-4" />;
+    };
+
+    const getTrendColor = () => {
+        if (isPositive) return 'text-green-600';
+        if (isNegative) return 'text-red-600';
+        return 'text-gray-500';
+    };
 
     return (
         <Card className="hover:shadow-md transition-shadow">
@@ -53,6 +72,19 @@
                 <Progress value={progress} className="h-2" />
             </div>
             )}
+            
+            {change !== undefined && (
+            <div className={cn(
+                "flex items-center gap-1 text-xs mt-2",
+                getTrendColor()
+            )}>
+                {getTrendIcon()}
+                <span>{formatPercent(change)}</span>
+                <span className="text-muted-foreground">
+                к предыдущему периоду
+                </span>
+            </div>
+            )}
         </CardContent>
         </Card>
     );
@@ -80,6 +112,7 @@
             title="Выручка"
             value={revenueMetric ? formatCurrency(revenueMetric.value) : '0 ₽'}
             target={targets?.revenue}
+            change={revenueMetric?.changePercent}
             icon={DollarSign}
             color="#f97316"
             description="Общий доход за период"
@@ -89,6 +122,7 @@
             title="Прибыль"
             value={profitMetric ? formatCurrency(profitMetric.value) : '0 ₽'}
             target={targets?.profit}
+            change={profitMetric?.changePercent}
             icon={DollarSign}
             color="#059669"
             description="Чистая прибыль"
@@ -98,6 +132,7 @@
             title="Заказы"
             value={dealsMetric ? dealsMetric.value : 0}
             target={targets?.deals}
+            change={dealsMetric?.changePercent}
             icon={Users}
             color="#3b82f6"
             description="Количество сделок"
@@ -107,6 +142,7 @@
             title="Конверсия"
             value={conversionMetric ? `${conversionMetric.value.toFixed(1)}%` : '0%'}
             target={targets?.conversion}
+            change={conversionMetric?.changePercent}
             icon={Target}
             color="#8b5cf6"
             description="Успешных сделок"
