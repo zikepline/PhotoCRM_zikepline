@@ -89,13 +89,32 @@ export default function Analytics() {
 
           <TabsContent value="overview" className="space-y-6">
             {/* Основные показатели */}
-            <AnalyticsSummary summary={analyticsData.summary} />
-
+            <AnalyticsSummary 
+              summary={analyticsData.summary} 
+              previousSummary={analyticsData.previousSummary}
+            />
+            
+            {/* Все метрики с трендами */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Показатели за период</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MetricsGrid metrics={analyticsData.metrics} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="detailed" className="space-y-6">
-            {/* Упрощенная детализация без трендов */}
-            <MetricsGrid metrics={analyticsData.metrics} />
+            {/* Графики динамики */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Динамика показателей</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AnalyticsChart data={analyticsData.charts} height={500} />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       ) : (
