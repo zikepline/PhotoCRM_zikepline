@@ -17,7 +17,13 @@ import Admin from "./pages/Admin";
 import CompleteProfile from "./pages/CompleteProfile";
 import Auth from "./pages/Auth";
 import Analytics from "./pages/Analytics";
+import Landing from "./pages/Landing";
+import Blog from "./pages/Blog";
+import About from "./pages/About";
+import Support from "./pages/Support";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -29,9 +35,14 @@ const App = () => (
       <BrowserRouter>
         <SidebarProvider>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
-            <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
             <Route path="/kanban" element={<ProtectedRoute><Layout><Kanban /></Layout></ProtectedRoute>} />
             <Route path="/calculator" element={<ProtectedRoute><Layout><Calculator /></Layout></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Layout><Analytics /></Layout></ProtectedRoute>} />
