@@ -1,3 +1,17 @@
+## Работа с базой данных в SQLEditor
+#### Очистка всей базы заказов
+```
+TRUNCATE TABLE public.deals RESTART IDENTITY CASCADE;
+```
+
+#### Очистка всей базы заказов у конкретного пользователя
+```
+DELETE FROM public.deals
+WHERE user_id = 'ВАШ_АЙДИ'::uuid;
+```
+
+#### Создание рандомных данных для теста
+```
 -- Генерация ~500 заказов: album_price ≈ 4000 за альбом, amount = album_price * children_count
 -- Пользователь (заменить на своего): fbc47d0d-f225-481f-b5d9-66251deee48a
 
@@ -170,3 +184,4 @@ SELECT
   NULL::text, phone, email, links, stage_history, status, tags,
   contact_id, company_id, created_at, updated_at
 FROM prepared;
+```
