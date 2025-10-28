@@ -26,44 +26,88 @@ export default function Dashboard() {
   const [dealDialogOpen, setDealDialogOpen] = useState(false);
 
   const loadDeals = async () => {
+    setIsLoading(true);
     try {
-      // Ограничиваем количество заказов для производительности
-      const { data, error } = await (supabase as any)
-        .from('deals')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200);
-
-      if (error) throw error;
-
-      const formattedDeals: Deal[] = (data || []).map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        amount: d.amount,
-        status: d.status,
-        contactId: d.contact_id,
-        responsibleId: d.user_id,
-        createdAt: new Date(d.created_at),
-        updatedAt: new Date(d.updated_at),
-        description: d.description,
-        phone: d.phone,
-        email: d.email,
-        links: d.links || [],
-        stageHistory: d.stage_history || [],
-        tags: d.tags || [],
-        albumPrice: d.amount / (d.children_count || 1),
-        childrenCount: d.children_count,
-        printCost: d.print_cost,
-        fixedExpenses: d.fixed_expenses,
-        schoolPaymentType: d.school_payment_type,
-        schoolPercent: d.school_percent,
-        schoolFixed: d.school_fixed,
-        photographerPaymentType: d.photographer_payment_type,
-        photographerPercent: d.photographer_percent,
-        photographerFixed: d.photographer_fixed,
-        taxBase: d.tax_base,
-        taxPercent: d.tax_percent,
-      }));
+      const pageSize = 200;
+      let allRows: any[] = [];
+      let from = 0;
+  
+      // Загружаем ВСЕ заказы по частям
+      while (true) {
+        const to = from + pageSize - 1;
+        const { data, error } = await supabase
+          .from('deals')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(from, to);
+  
+        if (error) throw error;
+  
+        const batch = data || [];
+        allRows = allRows.concat(batch);
+  
+        // Если меньше pageSize — конец данных
+        if (batch.length < pageSize) break;
+        from += pageSize;
+  
+        // Даем браузеру "передохнуть" между запросами (опционально, но полезно)
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+  
+      // Теперь обрабатываем большой массив без блокировки UI
+      const formattedDeals: Deal[] = [];
+      const total = allRows.length;
+  
+      for (let i = 0; i < total; i++) {
+        const d = allRows[i];
+        formattedDeals.push({
+          id: d.id,
+          title: d.title,
+          amount: Number(d.amount) || 0,
+          status: d.status,
+          contactId: d.contact_id,
+          responsibleId: d.user_id,
+          createdAt: new Date(d.created_at),
+          updatedAt: new Date(d.updated_at),
+          description: d.description,
+          phone: d.phone,
+          email: d.email,
+          links: d.links || [],
+          stageHistory: d.stage_history || [],
+          tags: d.tags || [],
+          albumPrice: (Number(d.amount) || 0) / (d.children_count || 1),
+          childrenCount: d.children_count,
+          printCost: Number(d.print_cost) || 0,
+          fixedExpenses: Number(d.fixed_expenses) || 0,
+          schoolPaymentType: d.school_payment_type,
+          schoolPercent: Number(d.school_percent) || 0,
+          schoolFixed: Number(d.school_fixed) || 0,
+          photographerPaymentType: d.photographer_payment_type,
+          photographerPercent: Number(d.photographer_percent) || 0,
+          photographerFixed: Number(d.photographer_fixed) || 0,
+          retoucherPaymentType: d.retoucher_payment_type,
+          retoucherPercent: Number(d.retoucher_percent) || 0,
+          retoucherFixed: Number(d.retoucher_fixed) || 0,
+          layoutPaymentType: d.layout_payment_type,
+          layoutPercent: Number(d.layout_percent) || 0,
+          layoutFixed: Number(d.layout_fixed) || 0,
+          taxBase: d.tax_base,
+          taxPercent: Number(d.tax_percent) || 0,
+        });
+  
+        // Каждые 500 элементов даём отрисоваться (или используем requestIdleCallback)
+        if (i > 0 && i % 300 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+  
+      setDeals(formattedDeals);
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка загрузки заказов');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
       setDeals(formattedDeals);
       const filtered = filterDealsByDate(formattedDeals, dateFilter);
