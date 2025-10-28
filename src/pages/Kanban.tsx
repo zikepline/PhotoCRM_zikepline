@@ -44,6 +44,8 @@ export default function Kanban() {
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [includeCompletedSubset, setIncludeCompletedSubset] = useState<boolean>(true);
+  const [completedSubsetLimit, setCompletedSubsetLimit] = useState<number>(50);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     deal: Deal | null;
@@ -61,31 +63,59 @@ export default function Kanban() {
   const loadDeals = async () => {
     setIsLoading(true);
     try {
-      // Загружаем только активные заказы (не завершенные и не проигранные) для лучшей производительности
-      let query = supabase
-        .from('deals')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const pageSize = 200;
+      let allRows: any[] = [];
 
-      // Если выбран конкретный статус, фильтруем по нему
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      } else {
-        // По умолчанию показываем только активные заказы
-        query = query.not('status', 'in', '(completed,lost)');
+      // Базовый билдера запроса с учётом фильтра статуса
+      const buildQuery = () => {
+        let q = supabase
+          .from('deals')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (statusFilter !== 'all') {
+          q = q.eq('status', statusFilter);
+        } else {
+          // Для активного режима "Все активные" исключаем завершённые и проигранные
+          q = q.not('status', 'in', '(completed,lost)');
+        }
+        return q;
+      };
+
+      // Пагинация: тянем все страницы пока приходят записи
+      let from = 0;
+      while (true) {
+        const to = from + pageSize - 1;
+        const { data, error } = await buildQuery().range(from, to);
+        if (error) throw error;
+        const batch = data || [];
+        allRows = allRows.concat(batch);
+        if (batch.length < pageSize) break;
+        from += pageSize;
       }
 
-      // Ограничиваем количество записей для производительности
-      query = query.limit(100);
+      // Дополнительно: когда выбран режим "Все активные", опционально подмешиваем ограниченный список завершённых
+      if (statusFilter === 'all' && includeCompletedSubset && completedSubsetLimit > 0) {
+        const COMPLETED_LIMIT = completedSubsetLimit;
+        const { data: completedData, error: completedError } = await supabase
+          .from('deals')
+          .select('*')
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false })
+          .limit(COMPLETED_LIMIT);
+        if (completedError) throw completedError;
+        allRows = allRows.concat(completedData || []);
+      }
 
-      const { data, error } = await query;
+      // Удаляем дубликаты по id (вдруг пересечение по диапазонам)
+      const uniqueMap = new Map<string, any>();
+      for (const r of allRows) uniqueMap.set(r.id, r);
+      const uniqueRows = Array.from(uniqueMap.values());
 
-      if (error) throw error;
-
-      const formattedDeals: Deal[] = (data || []).map((d: any) => ({
+      const formattedDeals: Deal[] = uniqueRows.map((d: any) => ({
         id: d.id,
         title: d.title,
-        amount: d.amount,
+        amount: Number(d.amount) || 0,
         status: d.status,
         contactId: d.contact_id,
         responsibleId: d.user_id,
@@ -97,24 +127,24 @@ export default function Kanban() {
         links: d.links || [],
         stageHistory: d.stage_history || [],
         tags: d.tags || [],
-        albumPrice: d.amount / (d.children_count || 1),
+        albumPrice: (Number(d.amount) || 0) / (d.children_count || 1),
         childrenCount: d.children_count,
-        printCost: d.print_cost,
-        fixedExpenses: d.fixed_expenses,
+        printCost: Number(d.print_cost) || 0,
+        fixedExpenses: Number(d.fixed_expenses) || 0,
         schoolPaymentType: d.school_payment_type,
-        schoolPercent: d.school_percent,
-        schoolFixed: d.school_fixed,
+        schoolPercent: Number(d.school_percent) || 0,
+        schoolFixed: Number(d.school_fixed) || 0,
         photographerPaymentType: d.photographer_payment_type,
-        photographerPercent: d.photographer_percent,
-        photographerFixed: d.photographer_fixed,
+        photographerPercent: Number(d.photographer_percent) || 0,
+        photographerFixed: Number(d.photographer_fixed) || 0,
         retoucherPaymentType: d.retoucher_payment_type,
-        retoucherPercent: d.retoucher_percent,
-        retoucherFixed: d.retoucher_fixed,
+        retoucherPercent: Number(d.retoucher_percent) || 0,
+        retoucherFixed: Number(d.retoucher_fixed) || 0,
         layoutPaymentType: d.layout_payment_type,
-        layoutPercent: d.layout_percent,
-        layoutFixed: d.layout_fixed,
+        layoutPercent: Number(d.layout_percent) || 0,
+        layoutFixed: Number(d.layout_fixed) || 0,
         taxBase: d.tax_base,
-        taxPercent: d.tax_percent,
+        taxPercent: Number(d.tax_percent) || 0,
       }));
 
       setDeals(formattedDeals);
@@ -127,7 +157,7 @@ export default function Kanban() {
 
   useEffect(() => {
     loadDeals();
-  }, [statusFilter]);
+  }, [statusFilter, includeCompletedSubset, completedSubsetLimit]);
 
   // Мемоизируем группировку заказов для производительности
   const dealsByStatus = useMemo(() => {
@@ -249,6 +279,33 @@ export default function Kanban() {
                 <SelectItem value="lost">Проигран</SelectItem>
               </SelectContent>
             </Select>
+            {statusFilter === 'all' && (
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={includeCompletedSubset}
+                    onChange={(e) => setIncludeCompletedSubset(e.target.checked)}
+                  />
+                  Показывать часть завершённых
+                </label>
+                <Select
+                  value={String(completedSubsetLimit)}
+                  onValueChange={(v) => setCompletedSubsetLimit(Number(v))}
+                  disabled={!includeCompletedSubset}
+                >
+                  <SelectTrigger className="w-24">
+                    <SelectValue placeholder="Лимит" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button 
               variant="outline" 
               onClick={loadDeals} 
