@@ -65,22 +65,11 @@ interface AnalyticsSummaryProps {
     conversionRate: number;
     profitMargin: number;
   };
-  previousSummary?: {
-    totalRevenue: number;
-    totalProfit: number;
-    totalDeals: number;
-    averageDealSize: number;
-    conversionRate: number;
-    profitMargin: number;
-  };
+  previousSummary?: never;
 }
 
 export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryProps) {
-  const calculateTrend = (current: number, previous: number) => {
-    if (previous === 0) return { value: current > 0 ? 100 : 0, isPositive: current > 0 };
-    const change = ((current - previous) / previous) * 100;
-    return { value: change, isPositive: change > 0 };
-  };
+  const calculateTrend = undefined as unknown as never;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -89,7 +78,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={formatCurrency(summary.totalRevenue)}
         icon={DollarSign}
         description="За выбранный период"
-        trend={previousSummary ? calculateTrend(summary.totalRevenue, previousSummary.totalRevenue) : undefined}
+        
       />
       
       <SummaryCard
@@ -97,7 +86,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={formatCurrency(summary.totalProfit)}
         icon={TrendingUp}
         description="После всех расходов"
-        trend={previousSummary ? calculateTrend(summary.totalProfit, previousSummary.totalProfit) : undefined}
+        
       />
       
       <SummaryCard
@@ -105,7 +94,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={summary.totalDeals}
         icon={ShoppingBag}
         description="Всего сделок"
-        trend={previousSummary ? calculateTrend(summary.totalDeals, previousSummary.totalDeals) : undefined}
+        
       />
       
       <SummaryCard
@@ -113,7 +102,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={formatCurrency(summary.averageDealSize)}
         icon={Target}
         description="На один заказ"
-        trend={previousSummary ? calculateTrend(summary.averageDealSize, previousSummary.averageDealSize) : undefined}
+        
       />
       
       <SummaryCard
@@ -121,7 +110,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={`${summary.conversionRate.toFixed(1)}%`}
         icon={Percent}
         description="Успешных сделок"
-        trend={previousSummary ? calculateTrend(summary.conversionRate, previousSummary.conversionRate) : undefined}
+        
       />
       
       <SummaryCard
@@ -129,7 +118,7 @@ export function AnalyticsSummary({ summary, previousSummary }: AnalyticsSummaryP
         value={`${summary.profitMargin.toFixed(1)}%`}
         icon={BarChart3}
         description="Прибыль к выручке"
-        trend={previousSummary ? calculateTrend(summary.profitMargin, previousSummary.profitMargin) : undefined}
+        
       />
     </div>
   );
