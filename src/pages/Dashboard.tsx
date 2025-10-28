@@ -24,7 +24,8 @@ export default function Dashboard() {
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [dateFilter, setDateFilter] = useState<DateFilterType>({ type: 'current_month' });
   const [dealDialogOpen, setDealDialogOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false); 
+  
   const loadDeals = async () => {
     setIsLoading(true);
     try {
@@ -32,7 +33,6 @@ export default function Dashboard() {
       let allRows: any[] = [];
       let from = 0;
   
-      // Загружаем ВСЕ заказы по частям
       while (true) {
         const to = from + pageSize - 1;
         const { data, error } = await supabase
@@ -45,16 +45,11 @@ export default function Dashboard() {
   
         const batch = data || [];
         allRows = allRows.concat(batch);
-  
-        // Если меньше pageSize — конец данных
         if (batch.length < pageSize) break;
         from += pageSize;
-  
-        // Даем браузеру "передохнуть" между запросами (опционально, но полезно)
         await new Promise(resolve => setTimeout(resolve, 0));
       }
   
-      // Теперь обрабатываем большой массив без блокировки UI
       const formattedDeals: Deal[] = [];
       const total = allRows.length;
   
@@ -95,20 +90,21 @@ export default function Dashboard() {
           taxPercent: Number(d.tax_percent) || 0,
         });
   
-        // Каждые 500 элементов даём отрисоваться (или используем requestIdleCallback)
         if (i > 0 && i % 300 === 0) {
           await new Promise(resolve => setTimeout(resolve, 0));
         }
       }
-
+  
       setDeals(formattedDeals);
       const filtered = filterDealsByDate(formattedDeals, dateFilter);
       setFilteredDeals(filtered);
     } catch (error: any) {
       toast.error(error.message || 'Ошибка загрузки заказов');
+    } finally {
+      setIsLoading(false);
     }
   };
-
+    
   useEffect(() => {
     loadDeals();
   }, []);
