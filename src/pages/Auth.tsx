@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -105,7 +106,17 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="group"
+        >
+          <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          На главную
+        </Button>
+        
+        <Card className="w-full">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             PhotoCRM
@@ -290,7 +301,8 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </div>      
   );
 }
