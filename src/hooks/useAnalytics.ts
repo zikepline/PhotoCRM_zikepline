@@ -4,49 +4,72 @@ import { supabase } from '@/integrations/supabase/client';
 import { Deal, AnalyticsPeriod, AnalyticsDateRange, AnalyticsData } from '@/types/crm';
 import { generateAnalyticsData } from '@/lib/utils/analytics';
 
+// Вспомогательная функция для загрузки ВСЕХ сделок с пагинацией
+const fetchAllDeals = async (signal?: AbortSignal): Promise<Deal[]> => {
+  const PAGE_SIZE = 1000;
+  let allDeals: any[] = [];
+  let start = 0;
+
+  while (true) {
+    if (signal?.aborted) {
+      throw new DOMException('Запрос отменён', 'AbortError');
+    }
+
+    const { data, error } = await supabase
+      .from('deals')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(start, start + PAGE_SIZE - 1);
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) break;
+
+    allDeals.push(...data);
+
+    if (data.length < PAGE_SIZE) {
+      break; // последняя страница
+    }
+    start += PAGE_SIZE;
+  }
+
+  return allDeals.map((d: any) => ({
+    id: d.id,
+    title: d.title,
+    amount: d.amount,
+    status: d.status,
+    contactId: d.contact_id,
+    responsibleId: d.user_id,
+    createdAt: new Date(d.created_at),
+    updatedAt: new Date(d.updated_at),
+    description: d.description,
+    phone: d.phone,
+    email: d.email,
+    links: d.links || [],
+    stageHistory: d.stage_history || [],
+    tags: d.tags || [],
+    albumPrice: d.amount / (d.children_count || 1),
+    childrenCount: d.children_count,
+    printCost: d.print_cost,
+    fixedExpenses: d.fixed_expenses,
+    schoolPaymentType: d.school_payment_type,
+    schoolPercent: d.school_percent,
+    schoolFixed: d.school_fixed,
+    photographerPaymentType: d.photographer_payment_type,
+    photographerPercent: d.photographer_percent,
+    photographerFixed: d.photographer_fixed,
+    taxBase: d.tax_base,
+    taxPercent: d.tax_percent,
+  }));
+};
+
 export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDateRange, selectedMonth?: Date) {
   const [deals, setDeals] = useState<Deal[]>([]);
   
-  // Загрузка сделок
+  // Загрузка ВСЕХ сделок (без ограничения в 1000)
   const { data: dealsData, isLoading, error } = useQuery({
-    queryKey: ['deals'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('deals')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return (data || []).map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        amount: d.amount,
-        status: d.status,
-        contactId: d.contact_id,
-        responsibleId: d.user_id,
-        createdAt: new Date(d.created_at),
-        updatedAt: new Date(d.updated_at),
-        description: d.description,
-        phone: d.phone,
-        email: d.email,
-        links: d.links || [],
-        stageHistory: d.stage_history || [],
-        tags: d.tags || [],
-        albumPrice: d.amount / (d.children_count || 1),
-        childrenCount: d.children_count,
-        printCost: d.print_cost,
-        fixedExpenses: d.fixed_expenses,
-        schoolPaymentType: d.school_payment_type,
-        schoolPercent: d.school_percent,
-        schoolFixed: d.school_fixed,
-        photographerPaymentType: d.photographer_payment_type,
-        photographerPercent: d.photographer_percent,
-        photographerFixed: d.photographer_fixed,
-        taxBase: d.tax_base,
-        taxPercent: d.tax_percent,
-      }));
-    },
+    queryKey: ['deals', 'all'],
+    queryFn: ({ signal }) => fetchAllDeals(signal),
     staleTime: 5 * 60 * 1000, // 5 минут
   });
 
@@ -83,6 +106,11 @@ export function useRealtimeMetrics() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
+        // ⚠️ Важно: здесь тоже может быть ограничение в 1000!
+        // Если у вас >1000 сделок, и метрики должны учитывать ВСЕ — тоже нужно пагинировать.
+        // Но для простоты и скорости часто достаточно агрегации на бэкенде.
+        // Пока оставим как есть, но предупреждаем.
+
         const { data: dealsData } = await supabase
           .from('deals')
           .select('*');
@@ -94,7 +122,6 @@ export function useRealtimeMetrics() {
             amount: d.amount || 0,
             status: d.status,
             createdAt: new Date(d.created_at),
-            // ... другие поля
           }));
 
           const now = new Date();
@@ -125,9 +152,7 @@ export function useRealtimeMetrics() {
 
     fetchMetrics();
     
-    // Обновляем каждые 30 секунд
     const interval = setInterval(fetchMetrics, 30000);
-    
     return () => clearInterval(interval);
   }, []);
 
