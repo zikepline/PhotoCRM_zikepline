@@ -100,14 +100,6 @@ export default function Dashboard() {
           await new Promise(resolve => setTimeout(resolve, 0));
         }
       }
-  
-      setDeals(formattedDeals);
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка загрузки заказов');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
       setDeals(formattedDeals);
       const filtered = filterDealsByDate(formattedDeals, dateFilter);
