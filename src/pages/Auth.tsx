@@ -80,7 +80,7 @@ export default function Auth() {
       }
 
       toast.success('Вход выполнен успешно!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Ошибка входа');
     } finally {
@@ -93,7 +93,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/dashboard`
         }
       });
 
