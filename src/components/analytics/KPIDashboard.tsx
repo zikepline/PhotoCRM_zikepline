@@ -81,7 +81,7 @@
             value={revenueMetric ? formatCurrency(revenueMetric.value) : '0 ₽'}
             target={targets?.revenue}
             icon={DollarSign}
-            color="#10b981"
+            color="#f97316"
             description="Общий доход за период"
         />
         
