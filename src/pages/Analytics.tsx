@@ -90,34 +90,12 @@ export default function Analytics() {
           <TabsContent value="overview" className="space-y-6">
             {/* Основные показатели */}
             <AnalyticsSummary summary={analyticsData.summary} />
-            
-            {/* Сравнение с предыдущим периодом */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Изменения к предыдущему периоду</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <MetricsGrid metrics={analyticsData.metrics} />
-              </CardContent>
-            </Card>
 
-            {/* График динамики */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Динамика показателей</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AnalyticsChart data={analyticsData.charts} height={500} />
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="detailed" className="space-y-6">
-            <AdvancedAnalytics
-              charts={analyticsData.charts}
-              selectedMetrics={filters.selectedMetrics}
-              onMetricsChange={(metrics) => setFilters({ ...filters, selectedMetrics: metrics })}
-            />
+            {/* Упрощенная детализация без трендов */}
+            <MetricsGrid metrics={analyticsData.metrics} />
           </TabsContent>
         </Tabs>
       ) : (
