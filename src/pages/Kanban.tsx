@@ -24,8 +24,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Filter } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RefreshCw } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const columns: { status: string; title: string; color: string }[] = [
   { status: 'new', title: 'Новые', color: 'bg-blue-500' },
@@ -43,6 +44,7 @@ export default function Kanban() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCompletedLost, setShowCompletedLost] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     deal: Deal | null;
@@ -135,6 +137,20 @@ export default function Kanban() {
     });
     return grouped;
   }, [deals]);
+
+  // Мемоизируем фильтрацию колонок
+  const visibleColumns = useMemo(() => {
+    if (showCompletedLost) return columns;
+    return columns.filter(col => col.status !== 'completed' && col.status !== 'lost');
+  }, [showCompletedLost]);
+
+  // Подсчет скрытых заказов
+  const hiddenDealsCount = useMemo(() => {
+    if (showCompletedLost) return { completed: 0, lost: 0 };
+    const completedCount = dealsByStatus['completed']?.length || 0;
+    const lostCount = dealsByStatus['lost']?.length || 0;
+    return { completed: completedCount, lost: lostCount };
+  }, [dealsByStatus, showCompletedLost]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const deal = deals.find((d) => d.id === event.active.id);
@@ -229,7 +245,22 @@ export default function Kanban() {
               Перетаскивайте карточки для изменения статуса
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <Label htmlFor="show-completed" className="text-sm cursor-pointer">
+                Показать завершенные/проигранные
+              </Label>
+              <Switch
+                id="show-completed"
+                checked={showCompletedLost}
+                onCheckedChange={setShowCompletedLost}
+              />
+              {!showCompletedLost && (hiddenDealsCount.completed > 0 || hiddenDealsCount.lost > 0) && (
+                <span className="text-sm text-muted-foreground">
+                  (Скрыто: {hiddenDealsCount.completed + hiddenDealsCount.lost})
+                </span>
+              )}
+            </div>
             <Button 
               variant="outline" 
               onClick={loadDeals} 
@@ -257,7 +288,7 @@ export default function Kanban() {
           onDragEnd={handleDragEnd}
         >
           <div className="flex gap-4 overflow-x-auto pb-4">
-            {columns.map((column) => (
+            {visibleColumns.map((column) => (
               <KanbanColumn
                 key={column.status}
                 status={column.status}
