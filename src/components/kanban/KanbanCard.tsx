@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Deal } from '@/types/crm';
+import { Deal, DealStatus } from '@/types/crm';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -9,6 +9,21 @@ import { formatCurrency, formatDate } from '@/lib/utils/calculations';
 import { Calendar, Tag, Phone, Mail, Link as LinkIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DealDialog } from '@/components/deals/DealDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+const statusOptions: { value: DealStatus; label: string }[] = [
+  { value: 'new', label: 'Новый' },
+  { value: 'contact', label: 'Контакт' },
+  { value: 'negotiation', label: 'Переговоры' },
+  { value: 'contract', label: 'Договор' },
+  { value: 'shooting', label: 'Съемка' },
+  { value: 'editing', label: 'Обработка' },
+  { value: 'delivery', label: 'Доставка' },
+  { value: 'completed', label: 'Завершен' },
+  { value: 'lost', label: 'Проигран' },
+];
 
 
 interface KanbanCardProps {
@@ -19,6 +34,7 @@ interface KanbanCardProps {
 export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(deal.status as DealStatus);
 
   const {
     attributes,
@@ -28,6 +44,25 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
     transition,
     isDragging,
   } = useSortable({ id: deal.id });
+
+  const handleStatusChange = async (newStatus: DealStatus) => {
+    if (newStatus === currentStatus) return;
+
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ status: newStatus })
+        .eq('id', deal.id);
+
+      if (error) throw error;
+
+      setCurrentStatus(newStatus);
+      toast.success('Статус заказа обновлен');
+      onUpdate();
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка обновления статуса');
+    }
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -107,7 +142,18 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Статус</p>
-                <Badge>{deal.status}</Badge>
+                <Select value={currentStatus} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -206,8 +252,11 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
       <DealDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        deal={deal}
-        onSuccess={onUpdate}
+        deal={{ ...deal, status: currentStatus }}
+        onSuccess={() => {
+          onUpdate();
+          setViewDialogOpen(false);
+        }}
       />
     </>
   );
