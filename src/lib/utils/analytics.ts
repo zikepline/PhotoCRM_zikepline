@@ -71,7 +71,7 @@ export function calculatePeriodComparison(
       value: currentStats.totalRevenue,
       previousValue: previousStats.totalRevenue,
       changePercent: calculateChangePercent(currentStats.totalRevenue, previousStats.totalRevenue),
-      color: '#10b981'
+      color: '#f97316'
     },
     {
       name: 'Прибыль',
@@ -209,7 +209,7 @@ export function createChartData(
     {
       metric: 'Выручка',
       data: revenueData,
-      color: '#10b981',
+      color: '#f97316',
       yAxis: 'left'
     },
     {
