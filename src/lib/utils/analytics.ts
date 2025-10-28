@@ -65,6 +65,14 @@ export function calculatePeriodComparison(
   const currentStats = calculateStatistics(currentDeals);
   const previousStats = calculateStatistics(previousDeals);
   
+  // Расчет расходов без налогов
+  const currentExpensesWithoutTax = currentStats.totalRevenue - currentStats.profit - currentStats.totalTax;
+  const previousExpensesWithoutTax = previousStats.totalRevenue - previousStats.profit - previousStats.totalTax;
+  
+  // Расчет расходов с налогами
+  const currentExpensesWithTax = currentStats.totalRevenue - currentStats.profit;
+  const previousExpensesWithTax = previousStats.totalRevenue - previousStats.profit;
+
   const metrics: AnalyticsMetric[] = [
     {
       name: 'Выручка',
@@ -107,6 +115,30 @@ export function calculatePeriodComparison(
       previousValue: previousStats.conversionRate,
       changePercent: calculateChangePercent(currentStats.conversionRate, previousStats.conversionRate),
       color: '#ef4444'
+    },
+    {
+      name: 'Рентабельность',
+      value: currentStats.totalRevenue > 0 ? (currentStats.profit / currentStats.totalRevenue) * 100 : 0,
+      previousValue: previousStats.totalRevenue > 0 ? (previousStats.profit / previousStats.totalRevenue) * 100 : 0,
+      changePercent: calculateChangePercent(
+        currentStats.totalRevenue > 0 ? (currentStats.profit / currentStats.totalRevenue) * 100 : 0,
+        previousStats.totalRevenue > 0 ? (previousStats.profit / previousStats.totalRevenue) * 100 : 0
+      ),
+      color: '#06b6d4'
+    },
+    {
+      name: 'Расходы (без налогов)',
+      value: currentExpensesWithoutTax,
+      previousValue: previousExpensesWithoutTax,
+      changePercent: calculateChangePercent(currentExpensesWithoutTax, previousExpensesWithoutTax),
+      color: '#84cc16'
+    },
+    {
+      name: 'Расходы (с налогами)',
+      value: currentExpensesWithTax,
+      previousValue: previousExpensesWithTax,
+      changePercent: calculateChangePercent(currentExpensesWithTax, previousExpensesWithTax),
+      color: '#eab308'
     }
   ];
   
@@ -244,6 +276,7 @@ export function generateAnalyticsData(
   const metrics = calculatePeriodComparison(currentDeals, previousDeals);
   const charts = createChartData(currentDeals);
   const currentStats = calculateStatistics(currentDeals);
+  const previousStats = calculateStatistics(previousDeals);
   
   return {
     period,
@@ -257,6 +290,14 @@ export function generateAnalyticsData(
       averageDealSize: currentStats.averageDealSize,
       conversionRate: currentStats.conversionRate,
       profitMargin: currentStats.totalRevenue > 0 ? (currentStats.profit / currentStats.totalRevenue) * 100 : 0
+    },
+    previousSummary: {
+      totalRevenue: previousStats.totalRevenue,
+      totalProfit: previousStats.profit,
+      totalDeals: previousDeals.length,
+      averageDealSize: previousStats.averageDealSize,
+      conversionRate: previousStats.conversionRate,
+      profitMargin: previousStats.totalRevenue > 0 ? (previousStats.profit / previousStats.totalRevenue) * 100 : 0
     }
   };
 }
