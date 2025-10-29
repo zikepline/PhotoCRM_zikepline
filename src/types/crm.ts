@@ -206,5 +206,5 @@ export interface AnalyticsFilters {
   customDateRange?: AnalyticsDateRange;
   selectedMonth?: Date; // Для выбора конкретного месяца
   selectedMetrics: string[];
-  groupBy: 'day' | 'week' | 'month';
+  groupBy: 'day' | 'week' | 'month' | 'quarter' | 'year';
 }
