@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download, FileText, Table, BarChart3 } from 'lucide-react';
+import { Download, FileText, BarChart3 } from 'lucide-react';
 import { AnalyticsData } from '@/types/crm';
 import { formatCurrency } from '@/lib/utils/analytics';
 
@@ -10,68 +10,40 @@ interface ExportDataProps {
 }
 
 export function ExportData({ analyticsData }: ExportDataProps) {
-  const exportToCSV = () => {
-    const csvData = analyticsData.charts.map(chart => 
-      chart.data.map(point => ({
-        Дата: point.date,
-        Метрика: chart.metric,
-        Значение: point.value,
-        Метка: point.label || ''
-      }))
-    ).flat();
-    
-    const csvContent = [
-      'Дата,Метрика,Значение,Метка',
-      ...csvData.map(row => `${row.Дата},${row.Метрика},${row.Значение},${row.Метка}`)
-    ].join('\n');
-    
-    downloadFile(csvContent, 'analytics.csv', 'text/csv');
-  };
-
-  const exportToJSON = () => {
-    const jsonData = {
-      period: analyticsData.period,
-      dateRange: {
-        startDate: analyticsData.dateRange.startDate.toISOString(),
-        endDate: analyticsData.dateRange.endDate.toISOString()
-      },
-      summary: analyticsData.summary,
-      metrics: analyticsData.metrics,
-      charts: analyticsData.charts
-    };
-    
-    downloadFile(JSON.stringify(jsonData, null, 2), 'analytics.json', 'application/json');
-  };
-
   const exportToExcel = () => {
-    // Простая реализация экспорта в Excel через CSV с расширением .xlsx
-    const csvData = analyticsData.charts.map(chart => 
-      chart.data.map(point => ({
-        Дата: point.date,
-        Метрика: chart.metric,
-        Значение: point.value,
-        Метка: point.label || ''
-      }))
+    // Экспорт как SpreadsheetML (Excel 2003 XML), корректно открывается с кириллицей
+    const rows = analyticsData.charts.map(chart =>
+      chart.data.map(point => [point.date, chart.metric, String(point.value), point.label || ''])
     ).flat();
-    
-    const csvContent = [
-      'Дата,Метрика,Значение,Метка',
-      ...csvData.map(row => `${row.Дата},${row.Метрика},${row.Значение},${row.Метка}`)
-    ].join('\n');
-    
-    downloadFile(csvContent, 'analytics.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>`;
+    const workbookOpen = `\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">`;
+    const styles = `\n<Styles><Style ss:ID="s62"><NumberFormat ss:Format="Standard"/></Style></Styles>`;
+    const worksheetOpen = `\n<Worksheet ss:Name="Analytics">\n<Table>`;
+    const headerRow = `\n<Row>\n<Cell><Data ss:Type="String">Дата</Data></Cell>\n<Cell><Data ss:Type="String">Метрика</Data></Cell>\n<Cell><Data ss:Type="Number">Значение</Data></Cell>\n<Cell><Data ss:Type="String">Метка</Data></Cell>\n</Row>`;
+    const dataRows = rows.map(r => `\n<Row>\n<Cell><Data ss:Type="String">${escapeXml(r[0])}</Data></Cell>\n<Cell><Data ss:Type="String">${escapeXml(r[1])}</Data></Cell>\n<Cell ss:StyleID="s62"><Data ss:Type="Number">${Number(r[2]) || 0}</Data></Cell>\n<Cell><Data ss:Type="String">${escapeXml(r[3])}</Data></Cell>\n</Row>`).join('');
+    const worksheetClose = `\n</Table>\n</Worksheet>`;
+    const workbookClose = `\n</Workbook>`;
+
+    const content = xmlHeader + workbookOpen + styles + worksheetOpen + headerRow + dataRows + worksheetClose + workbookClose;
+
+    // Добавляем BOM для совместимости
+    const utf8Bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([utf8Bom, content], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    triggerDownloadBlob(blob, 'analytics.xls');
   };
 
-  const downloadFile = (content: string, filename: string, mimeType: string) => {
-    const blob = new Blob([content], { type: mimeType });
-    const link = document.createElement('a');
+  const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const triggerDownloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const generateReport = () => {
@@ -114,14 +86,6 @@ ${analyticsData.charts.map(chart =>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={exportToCSV}>
-          <Table className="w-4 h-4 mr-2" />
-          CSV файл
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportToJSON}>
-          <FileText className="w-4 h-4 mr-2" />
-          JSON файл
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={exportToExcel}>
           <BarChart3 className="w-4 h-4 mr-2" />
           Excel файл
