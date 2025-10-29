@@ -20,15 +20,19 @@ export default function Analytics() {
     groupBy: 'day'
   });
 
-  const { analyticsData, isLoading, error } = useAnalytics(
+  const { analyticsData, isLoading, error, refetch } = useAnalytics(
     filters.period, 
     filters.customDateRange,
     filters.selectedMonth
   );
 
-  const handleRefresh = () => {
-    // Данные обновятся автоматически благодаря React Query
-    toast.success('Данные обновлены');
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      toast.success('Данные обновлены');
+    } catch (e: any) {
+      toast.error(e?.message || 'Не удалось обновить данные');
+    }
   };
 
   if (error) {
