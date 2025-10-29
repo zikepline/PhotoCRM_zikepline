@@ -138,12 +138,15 @@ export default function Kanban() {
     return grouped;
   }, [deals]);
 
+<<<<<<< HEAD
   // Мемоизируем фильтрацию колонок
   const visibleColumns = useMemo(() => {
     if (showCompletedLost) return columns;
     return columns.filter(col => col.status !== 'completed' && col.status !== 'lost');
   }, [showCompletedLost]);
 
+=======
+>>>>>>> fdee73d (Analytics: include retoucher/layout in stats; add refetch; fix Excel export encoding; Dashboard: loading indicator; Kanban: memo + keep completed/lost columns visible with header totals; Auth: fix duplicate import)
   // Подсчет скрытых заказов
   const hiddenDealsCount = useMemo(() => {
     if (showCompletedLost) return { completed: 0, lost: 0 };
@@ -288,6 +291,7 @@ export default function Kanban() {
           onDragEnd={handleDragEnd}
         >
           <div className="flex gap-4 overflow-x-auto pb-4">
+<<<<<<< HEAD
             {visibleColumns.map((column) => (
               <KanbanColumn
                 key={column.status}
@@ -298,6 +302,27 @@ export default function Kanban() {
                 onUpdate={loadDeals}
               />
             ))}
+=======
+            {columns.map((column) => {
+              const isFinal = column.status === 'completed' || column.status === 'lost';
+              const fullDeals = getDealsByStatus(column.status);
+              const headerCount = fullDeals.length;
+              const headerAmount = fullDeals.reduce((s, d) => s + d.amount, 0);
+              const dealsForRender = !showCompletedLost && isFinal ? [] : fullDeals;
+              return (
+                <KanbanColumn
+                  key={column.status}
+                  status={column.status}
+                  title={column.title}
+                  color={column.color}
+                  deals={dealsForRender}
+                  headerCount={headerCount}
+                  headerAmount={headerAmount}
+                  onUpdate={loadDeals}
+                />
+              );
+            })}
+>>>>>>> fdee73d (Analytics: include retoucher/layout in stats; add refetch; fix Excel export encoding; Dashboard: loading indicator; Kanban: memo + keep completed/lost columns visible with header totals; Auth: fix duplicate import)
           </div>
 
           <DragOverlay>
