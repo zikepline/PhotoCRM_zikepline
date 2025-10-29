@@ -58,6 +58,12 @@ const fetchAllDeals = async (signal?: AbortSignal): Promise<Deal[]> => {
     photographerPaymentType: d.photographer_payment_type,
     photographerPercent: d.photographer_percent,
     photographerFixed: d.photographer_fixed,
+    retoucherPaymentType: d.retoucher_payment_type,
+    retoucherPercent: d.retoucher_percent,
+    retoucherFixed: d.retoucher_fixed,
+    layoutPaymentType: d.layout_payment_type,
+    layoutPercent: d.layout_percent,
+    layoutFixed: d.layout_fixed,
     taxBase: d.tax_base,
     taxPercent: d.tax_percent,
   }));
@@ -67,7 +73,7 @@ export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDat
   const [deals, setDeals] = useState<Deal[]>([]);
   
   // Загрузка ВСЕХ сделок (без ограничения в 1000)
-  const { data: dealsData, isLoading, error } = useQuery({
+  const { data: dealsData, isLoading, error, refetch } = useQuery({
     queryKey: ['deals', 'all'],
     queryFn: ({ signal }) => fetchAllDeals(signal),
     staleTime: 5 * 60 * 1000, // 5 минут
@@ -89,7 +95,8 @@ export function useAnalytics(period: AnalyticsPeriod, customRange?: AnalyticsDat
     analyticsData,
     isLoading,
     error,
-    deals
+    deals,
+    refetch
   };
 }
 
