@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Deal } from '@/types/crm';
@@ -11,16 +11,20 @@ interface KanbanColumnProps {
   deals: Deal[];
   color: string;
   onUpdate: () => void;
+  headerCount?: number;
+  headerAmount?: number;
 }
 
-export function KanbanColumn({ status, title, deals, color, onUpdate }: KanbanColumnProps) {
+function KanbanColumnCmp({ status, title, deals, color, onUpdate, headerCount, headerAmount }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   });
 
   const dealIds = useMemo(() => deals.map(deal => deal.id), [deals]);
 
-  const totalAmount = deals.reduce((sum, deal) => sum + deal.amount, 0);
+  const totalAmount = headerAmount !== undefined
+    ? headerAmount
+    : deals.reduce((sum, deal) => sum + deal.amount, 0);
 
   return (
     <div className="flex flex-col min-w-[320px] bg-muted/30 rounded-lg">
@@ -28,7 +32,7 @@ export function KanbanColumn({ status, title, deals, color, onUpdate }: KanbanCo
         <div className="flex items-center justify-between text-white">
           <h3 className="font-semibold">{title}</h3>
           <span className="text-sm bg-white/20 px-2 py-1 rounded">
-            {deals.length}
+            {headerCount !== undefined ? headerCount : deals.length}
           </span>
         </div>
         <p className="text-sm text-white/90 mt-1">
@@ -62,3 +66,5 @@ export function KanbanColumn({ status, title, deals, color, onUpdate }: KanbanCo
     </div>
   );
 }
+
+export const KanbanColumn = memo(KanbanColumnCmp);
