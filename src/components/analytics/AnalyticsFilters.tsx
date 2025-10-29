@@ -27,7 +27,7 @@ export function AnalyticsFiltersComponent({ filters, onFiltersChange }: Analytic
     });
   };
 
-  const handleGroupByChange = (groupBy: 'day' | 'week' | 'month') => {
+  const handleGroupByChange = (groupBy: 'day' | 'week' | 'month' | 'quarter' | 'year') => {
     onFiltersChange({
       ...filters,
       groupBy
@@ -80,7 +80,9 @@ export function AnalyticsFiltersComponent({ filters, onFiltersChange }: Analytic
   const groupByOptions = [
     { value: 'day', label: 'По дням' },
     { value: 'week', label: 'По неделям' },
-    { value: 'month', label: 'По месяцам' }
+    { value: 'month', label: 'По месяцам' },
+    { value: 'quarter', label: 'По кварталам' },
+    { value: 'year', label: 'По годам' }
   ];
 
   return (
