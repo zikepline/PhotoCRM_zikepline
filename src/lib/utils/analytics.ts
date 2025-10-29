@@ -153,42 +153,76 @@ export function calculateChangePercent(current: number, previous: number): numbe
 
 // Группировка данных по дням/неделям/месяцам
 export function groupDataByPeriod(
-  deals: Deal[], 
-  groupBy: 'day' | 'week' | 'month'
+  deals: Deal[],
+  groupBy: 'day' | 'week' | 'month' | 'quarter' | 'year',
+  dateRange?: AnalyticsDateRange
 ): ChartDataPoint[] {
   const grouped = new Map<string, Deal[]>();
-  
-  deals.forEach(deal => {
-    const date = new Date(deal.createdAt);
-    let key: string;
-    
+
+  const getKey = (date: Date): string => {
     switch (groupBy) {
       case 'day':
-        key = date.toISOString().split('T')[0];
-        break;
-      case 'week':
+        return date.toISOString().split('T')[0];
+      case 'week': {
         const weekStart = new Date(date);
         weekStart.setDate(date.getDate() - date.getDay());
-        key = weekStart.toISOString().split('T')[0];
-        break;
+        weekStart.setHours(0,0,0,0);
+        return weekStart.toISOString().split('T')[0];
+      }
       case 'month':
-        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        break;
+        return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
+      case 'quarter': {
+        const q = Math.floor(date.getMonth() / 3);
+        return new Date(date.getFullYear(), q * 3, 1).toISOString().split('T')[0];
+      }
+      case 'year':
+        return new Date(date.getFullYear(), 0, 1).toISOString().split('T')[0];
       default:
-        key = date.toISOString().split('T')[0];
+        return date.toISOString().split('T')[0];
     }
-    
-    if (!grouped.has(key)) {
-      grouped.set(key, []);
-    }
+  };
+
+  deals.forEach(deal => {
+    const key = getKey(new Date(deal.createdAt));
+    if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(deal);
   });
-  
+
+  // Заполняем пропуски нулями
+  if (dateRange) {
+    const cursor = new Date(dateRange.startDate);
+    const end = new Date(dateRange.endDate);
+    cursor.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+    while (cursor <= end) {
+      const key = getKey(cursor);
+      if (!grouped.has(key)) grouped.set(key, []);
+      // шаг курсора
+      switch (groupBy) {
+        case 'day':
+          cursor.setDate(cursor.getDate() + 1);
+          break;
+        case 'week':
+          cursor.setDate(cursor.getDate() + 7);
+          break;
+        case 'month':
+          cursor.setMonth(cursor.getMonth() + 1);
+          break;
+        case 'quarter':
+          cursor.setMonth(cursor.getMonth() + 3);
+          break;
+        case 'year':
+          cursor.setFullYear(cursor.getFullYear() + 1);
+          break;
+      }
+    }
+  }
+
   return Array.from(grouped.entries())
     .map(([date, deals]) => ({
       date,
       value: deals.reduce((sum, deal) => sum + (deal.amount || 0), 0),
-      label: formatDateLabel(date, groupBy)
+      label: formatDateLabel(date, groupBy as any)
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -214,48 +248,47 @@ export function formatDateLabel(dateStr: string, groupBy: 'day' | 'week' | 'mont
 // Создание данных для графиков
 export function createChartData(
   deals: Deal[],
-  groupBy: 'day' | 'week' | 'month' = 'day'
+  dateRange: AnalyticsDateRange,
+  groupBy: 'day' | 'week' | 'month' | 'quarter' | 'year' = 'day'
 ): AnalyticsChartData[] {
-  const revenueData = groupDataByPeriod(deals, groupBy);
-  const profitData = groupDataByPeriod(
-    deals.filter(d => d.status === 'completed'), 
-    groupBy
-  ).map(point => ({
-    ...point,
-    value: calculateStatistics(
-      deals.filter(d => 
-        d.status === 'completed' && 
-        new Date(d.createdAt).toISOString().split('T')[0] === point.date
-      )
-    ).profit
-  }));
-  
-  const dealsCountData = groupDataByPeriod(deals, groupBy).map(point => ({
-    ...point,
-    value: deals.filter(d => 
-      new Date(d.createdAt).toISOString().split('T')[0] === point.date
-    ).length
-  }));
-  
-  return [
-    {
-      metric: 'Выручка',
-      data: revenueData,
-      color: '#f97316',
-      yAxis: 'left'
-    },
-    {
-      metric: 'Прибыль',
-      data: profitData,
-      color: '#059669',
-      yAxis: 'left'
-    },
-    {
-      metric: 'Количество заказов',
-      data: dealsCountData,
-      color: '#3b82f6',
-      yAxis: 'right'
+  const basePoints = groupDataByPeriod(deals, groupBy, dateRange); // выручка
+  const byKey = new Map(basePoints.map(p => [p.date, p]));
+
+  const calcForKey = (key: string) => {
+    const [start] = [new Date(key)];
+    let end = new Date(start);
+    switch (groupBy) {
+      case 'day': end = new Date(start); break;
+      case 'week': end.setDate(start.getDate() + 6); break;
+      case 'month': end = new Date(start.getFullYear(), start.getMonth() + 1, 0); break;
+      case 'quarter': end = new Date(start.getFullYear(), start.getMonth() + 3, 0); break;
+      case 'year': end = new Date(start.getFullYear(), 11, 31); break;
     }
+    const slice = deals.filter(d => {
+      const dt = new Date(d.createdAt);
+      return dt >= start && dt <= end;
+    });
+    const stats = calculateStatistics(slice);
+    const count = slice.length;
+    const avg = stats.totalRevenue / (count || 1);
+    return { stats, count, avg };
+  };
+
+  const profitData = basePoints.map(p => ({ ...p, value: calcForKey(p.date).stats.profit }));
+  const taxData = basePoints.map(p => ({ ...p, value: calcForKey(p.date).stats.totalTax }));
+  const dealsCountData = basePoints.map(p => ({ ...p, value: calcForKey(p.date).count }));
+  const avgCheckData = basePoints.map(p => ({ ...p, value: calcForKey(p.date).avg }));
+  const expensesNoTax = basePoints.map(p => ({ ...p, value: calcForKey(p.date).stats.totalRevenue - calcForKey(p.date).stats.profit - calcForKey(p.date).stats.totalTax }));
+  const expensesWithTax = basePoints.map(p => ({ ...p, value: calcForKey(p.date).stats.totalRevenue - calcForKey(p.date).stats.profit }));
+
+  return [
+    { metric: 'Выручка', data: basePoints, color: '#f97316', yAxis: 'left' },
+    { metric: 'Прибыль', data: profitData, color: '#059669', yAxis: 'left' },
+    { metric: 'Налоги', data: taxData, color: '#f59e0b', yAxis: 'left' },
+    { metric: 'Количество заказов', data: dealsCountData, color: '#3b82f6', yAxis: 'right' },
+    { metric: 'Средний чек', data: avgCheckData, color: '#8b5cf6', yAxis: 'left' },
+    { metric: 'Расходы (без налогов)', data: expensesNoTax, color: '#84cc16', yAxis: 'left' },
+    { metric: 'Расходы (с налогами)', data: expensesWithTax, color: '#eab308', yAxis: 'left' },
   ];
 }
 
