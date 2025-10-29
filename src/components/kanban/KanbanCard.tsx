@@ -45,14 +45,10 @@ function KanbanCardCmp({ deal, onUpdate }: KanbanCardProps) {
     isDragging,
   } = useSortable({ id: deal.id });
 
-<<<<<<< HEAD
-=======
   // Синхронизируем currentStatus с deal.status
   useEffect(() => {
     setCurrentStatus(deal.status as DealStatus);
   }, [deal.status]);
-
->>>>>>> fdee73d (Analytics: include retoucher/layout in stats; add refetch; fix Excel export encoding; Dashboard: loading indicator; Kanban: memo + keep completed/lost columns visible with header totals; Auth: fix duplicate import)
   const handleStatusChange = async (newStatus: DealStatus) => {
     if (newStatus === currentStatus) return;
 
