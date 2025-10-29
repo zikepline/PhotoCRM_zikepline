@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Deal, DealStatus } from '@/types/crm';
@@ -31,7 +31,7 @@ interface KanbanCardProps {
   onUpdate: () => void;
 }
 
-export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
+function KanbanCardCmp({ deal, onUpdate }: KanbanCardProps) {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(deal.status as DealStatus);
@@ -45,6 +45,14 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
     isDragging,
   } = useSortable({ id: deal.id });
 
+<<<<<<< HEAD
+=======
+  // Синхронизируем currentStatus с deal.status
+  useEffect(() => {
+    setCurrentStatus(deal.status as DealStatus);
+  }, [deal.status]);
+
+>>>>>>> fdee73d (Analytics: include retoucher/layout in stats; add refetch; fix Excel export encoding; Dashboard: loading indicator; Kanban: memo + keep completed/lost columns visible with header totals; Auth: fix duplicate import)
   const handleStatusChange = async (newStatus: DealStatus) => {
     if (newStatus === currentStatus) return;
 
@@ -261,3 +269,5 @@ export function KanbanCard({ deal, onUpdate }: KanbanCardProps) {
     </>
   );
 }
+
+export const KanbanCard = memo(KanbanCardCmp);
