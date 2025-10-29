@@ -12,6 +12,7 @@ import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { ExportData } from '@/components/analytics/ExportData';
 import { AnalyticsFilters, AnalyticsPeriod } from '@/types/crm';
 import { toast } from 'sonner';
+import { createChartData } from '@/lib/utils/analytics';
 
 export default function Analytics() {
   const [filters, setFilters] = useState<AnalyticsFilters>({
@@ -20,7 +21,7 @@ export default function Analytics() {
     groupBy: 'day'
   });
 
-  const { analyticsData, isLoading, error, refetch } = useAnalytics(
+  const { analyticsData, isLoading, error, refetch, deals } = useAnalytics(
     filters.period, 
     filters.customDateRange,
     filters.selectedMonth
@@ -98,27 +99,30 @@ export default function Analytics() {
               previousSummary={analyticsData.previousSummary}
             />
             
-            {/* Все метрики с трендами */}
+            {/* Налоги и расходы */}
             <Card>
               <CardHeader>
-                <CardTitle>Показатели за период</CardTitle>
+                <CardTitle>Налоги и расходы за период</CardTitle>
               </CardHeader>
               <CardContent>
-                <MetricsGrid metrics={analyticsData.metrics} />
+                <MetricsGrid 
+                  metrics={analyticsData.metrics.filter(m => 
+                    m.name === 'Налоги' || m.name.startsWith('Расходы')
+                  )}
+                />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="detailed" className="space-y-6">
-            {/* Графики динамики */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Динамика показателей</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AnalyticsChart data={analyticsData.charts} height={500} />
-              </CardContent>
-            </Card>
+            {/* Выбор метрик и график с учетом группировки */}
+            {deals && (
+              <AdvancedAnalytics 
+                charts={createChartData(deals, analyticsData.dateRange, filters.groupBy)}
+                selectedMetrics={filters.selectedMetrics}
+                onMetricsChange={(metrics) => setFilters({ ...filters, selectedMetrics: metrics })}
+              />
+            )}
           </TabsContent>
         </Tabs>
       ) : (
