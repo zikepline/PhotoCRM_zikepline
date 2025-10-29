@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 
 interface MetricCardProps {
   metric: AnalyticsMetric;
+  compareLabel: string;
 }
 
-export function MetricCard({ metric }: MetricCardProps) {
+export function MetricCard({ metric, compareLabel }: MetricCardProps) {
   const isPositive = metric.changePercent && metric.changePercent > 0;
   const isNegative = metric.changePercent && metric.changePercent < 0;
   const isNeutral = metric.changePercent === 0 || !metric.changePercent;
@@ -53,9 +54,7 @@ export function MetricCard({ metric }: MetricCardProps) {
           )}>
             {getTrendIcon()}
             <span>{formatPercent(metric.changePercent)}</span>
-            <span className="text-muted-foreground">
-              к предыдущему периоду
-            </span>
+            <span className="text-muted-foreground">{compareLabel}</span>
           </div>
         )}
       </CardContent>
@@ -65,13 +64,14 @@ export function MetricCard({ metric }: MetricCardProps) {
 
 interface MetricsGridProps {
   metrics: AnalyticsMetric[];
+  compareLabel?: string;
 }
 
-export function MetricsGrid({ metrics }: MetricsGridProps) {
+export function MetricsGrid({ metrics, compareLabel = 'к предыдущему периоду' }: MetricsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {metrics.map((metric, index) => (
-        <MetricCard key={index} metric={metric} />
+        <MetricCard key={index} metric={metric} compareLabel={compareLabel} />
       ))}
     </div>
   );
